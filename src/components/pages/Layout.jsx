@@ -8,23 +8,6 @@ import '../../staticFiles/css/custom-scrollbars.css';
 import '../../staticFiles/css/skins/skin-blue.min.css';
 
 export default class Layout extends React.Component {
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      pageTitle: '',
-      courseId: null
-    };
-  }
-
-  componentWillMount() {
-    subscribe('page:titles:change', (payload) => {
-      alert();
-      this.setState(payload);
-    });
-  }
-
   render() {
     return (
        <div className="hold-transition skin-blue sidebar-mini layout-boxed">

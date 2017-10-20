@@ -7,15 +7,12 @@ export default class LeftMenu extends React.Component {
     super(props);
 
     this.state = {
-      pageTitle: '',
-      courseId: null
+      pageTitle: 'fsdaf'
     };
   }
 
   componentWillMount() {
-    subscribe('page:titles:change', (payload) => {
-      this.setState(payload);
-    });
+    subscribe('page:titles:change', (payload) => this.setState(payload));
   }
 
   render() {
