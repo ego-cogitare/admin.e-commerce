@@ -1,0 +1,94 @@
+.trumbowyg-button-pane.fixed {
+  position: fixed;
+  top: 0;
+  z-index: 999;
+}
+
+.trumbowyg-fullscreen .trumbowyg-button-pane {
+  width: 100% !important;
+}
+
+.trumbowyg-button-pane .trumbowyg-media-button {
+  font-family: FontAwesome;
+}
+
+.trumbowyg-button-pane .trumbowyg-media-button:before {
+  content: "\f0ee";
+}
+
+.trumbowyg-button-pane .trumbowyg-media-button * {
+  display: none;
+}
+
+.trumbowyg-dropdown button:focus,
+.trumbowyg-dropdown button:hover {
+  background-color: #ecf0f1 !important;
+}
+
+.trumbowyg-dropdown {
+  z-index: 999;
+}
+
+.trumbowyg-overlay {
+  height: 100% !important;
+}
+
+.trumbowyg-button-pane.fixed ~ .trumbowyg-modal {
+  position: fixed;
+  margin-left: 115px;
+}
+
+.trumbowyg-editor VIDEO,
+.trumbowyg-editor AUDIO {
+  display: block;
+}
+
+.data-table-container TABLE TBODY {
+    max-height: 250px;
+    height: 250px;
+}
+
+TABLE.table {
+  width: 100%;
+  border: 1px solid #CCCCCC;
+}
+
+TABLE.table TR TD {
+  border: 1px solid #CCCCCC;
+}
+
+TABLE.table TR TD:empty {
+  padding: 5px;
+}
+
+.form-group .contents {
+  width: 100%;
+  min-height: 300px;
+  border: 4px dashed #CCCCCC;
+  margin-top: 10px;
+  background: #ededed;
+}
+
+.form-group .contents > .data {
+  padding-top: 10px;
+  max-width: 550px;
+  margin: 0 auto;
+}
+
+.form-group .practise .contents > .data .clear:after {
+  clear: both;
+  content: '';
+  display: block;
+}
+
+.form-group .practise .contents > .data .left {
+  float: left;
+}
+
+.form-group .contents:empty:before {
+  display: block;
+  content: 'No content provided.';
+  text-align: center;
+  line-height: 292px;
+  color: #AAA;
+}

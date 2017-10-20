@@ -1,0 +1,71 @@
+.community-stream {
+  margin: 0;
+  padding-left: 5px;
+  list-style-type: none;
+}
+
+.community-stream .title {
+  padding-top: 0;
+  font-size: 14px;
+  display: block;
+  text-decoration: none;
+}
+
+.community-stream .descr {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  padding-top: 5px;
+}
+
+.community-stream .icon {
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.community-stream .avatar {
+  width: 54px;
+  padding-top: 8px;
+}
+
+.community-stream .message {
+  width: 260px;
+  padding-bottom: 10px;
+}
+
+.community-stream .message .woting {
+  color: #777777;
+  padding-top: 14px;
+  font-size: 14px;
+}
+
+.community-stream .message .woting SPAN {
+  font-family: 'Raleway Webfont';
+  font-weight: 500;
+  padding-left: 5px;
+}
+
+.community-stream .message .woting .comments {
+  padding-right: 10px;
+}
+
+/*.community-stream .icon.calendar {
+  width: 23px;
+  height: 26px;
+  background: url('../img/dashboard/calendar.png') no-repeat center center;
+}
+
+.community-stream .icon.pdf {
+  width: 56px;
+  height: 27px;
+  background: url('../img/dashboard/pdf.png') no-repeat center center;
+  float: right;
+}
+
+.community-stream .icon.hexagon {
+  width: 35px;
+  height: 41px;
+  background: url('../img/dashboard/hexagon.png') no-repeat center center;
+  float: right;
+}*/
