@@ -5,8 +5,8 @@ const routes = {
   default: [
     // Global (Admin) components
     {
-      path: 'file-manager',
-      component: require('../components/pages/fileManager/FileManager.jsx').default
+      path: 'brands',
+      component: require('../components/pages/brands/Brands.jsx').default
     },
 
     // Coordinator components
@@ -36,6 +36,8 @@ const routes = {
   resolve: function (route) {
     // Get logged user data
     const loggedUser = JSON.parse(localStorage.getItem('user'));
+
+    loggedUser.role = 'ROLE_ADMIN';
 
     // Check if route available for the user
     if (this.custom[loggedUser.role].available !== '*' && this.custom[loggedUser.role].available.indexOf(route) === -1) {
