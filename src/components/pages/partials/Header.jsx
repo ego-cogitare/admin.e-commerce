@@ -43,10 +43,16 @@ export default class LeftMenu extends React.Component {
                </a>
              </li>
              <li>
-               <a href="#" onClick={logout} data-toggle="control-sidebar"><i class="fa fa-power-off"></i></a>
+               <a href="#" data-toggle="control-sidebar">
+                 <i class="fa fa-shopping-cart"></i>
+                 <span class="label label-success">10</span>
+               </a>
              </li>
              <li>
-               <a href="#" data-toggle="control-sidebar"><i class="fa fa-comments-o"></i></a>
+               <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
+             </li>
+             <li>
+               <a href="#" onClick={logout} data-toggle="control-sidebar"><i class="fa fa-power-off"></i></a>
              </li>
            </ul>
          </div>

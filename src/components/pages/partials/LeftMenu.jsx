@@ -15,26 +15,19 @@ export default class LeftMenu extends React.Component {
     };
   }
 
-  componentWillMount() {
-
-  }
-
   render() {
     return (
       <aside class="main-sidebar">
         <section class="sidebar">
           <ul class="sidebar-menu">
             <li>
-              <Link to="/courses" activeClassName="active"><i class="fa fa-link"></i> <span>Courses</span></Link>
+              <Link to="/categories" activeClassName="active"><i class="fa fa-th-large"></i> <span>Категории</span></Link>
             </li>
             <li>
-              <Link to="/quiz" activeClassName="active"><i class="fa fa-link"></i> <span>Quiz</span></Link>
+              <Link to="/brands" activeClassName="active"><i class="fa fa-apple"></i> <span>Бренды</span></Link>
             </li>
             <li>
-              <Link to="/users" activeClassName="active"><i class="fa fa-link"></i> <span>Users</span></Link>
-            </li>
-            <li>
-              <Link to="/file-manager" activeClassName="active"><i class="fa fa-link"></i> <span>File manager</span></Link>
+              <Link to="/products" activeClassName="active"><i class="fa fa-tv"></i> <span>Товары</span></Link>
             </li>
           </ul>
         </section>

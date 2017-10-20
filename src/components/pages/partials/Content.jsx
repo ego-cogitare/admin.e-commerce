@@ -2,7 +2,7 @@ import React from 'react';
 import { subscribe } from '../../../core/helpers/EventEmitter';
 
 export default class LeftMenu extends React.Component {
-  
+
   constructor(props) {
     super(props);
 
@@ -15,12 +15,6 @@ export default class LeftMenu extends React.Component {
   componentWillMount() {
     subscribe('page:titles:change', (payload) => {
       this.setState(payload);
-    });
-  }
-
-  componentWillReceiveProps(props) {
-    this.setState({
-      courseId: props.params.id
     });
   }
 
