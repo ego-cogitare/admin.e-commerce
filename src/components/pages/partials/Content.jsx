@@ -7,7 +7,7 @@ export default class LeftMenu extends React.Component {
     super(props);
 
     this.state = {
-      pageTitle: 'fsdaf'
+      pageTitle: ''
     };
   }
 
