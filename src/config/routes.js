@@ -8,6 +8,14 @@ const routes = {
       path: 'brands',
       component: require('../components/pages/brands/Brands.jsx').default
     },
+    {
+      path: 'file-manager',
+      component: require('../components/pages/fileManager/FileManager.jsx').default
+    },
+    {
+      path: 'users',
+      component: require('../components/pages/users/Users.jsx').default
+    },
 
     // Coordinator components
     {

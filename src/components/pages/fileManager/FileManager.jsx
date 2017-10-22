@@ -78,7 +78,6 @@ export default class FileManager extends React.Component {
   }
 
   fileDeletedListener(payload) {
-    console.log(payload)
     // Reload current directory
     dispatch('file-manager:directory:load', { path: this.state.path });
 

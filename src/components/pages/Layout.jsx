@@ -6,6 +6,7 @@ import '../../staticFiles/js/app';
 import '../../staticFiles/css/AdminLTE.css';
 import '../../staticFiles/css/custom-scrollbars.css';
 import '../../staticFiles/css/skins/skin-blue.min.css';
+import '../../staticFiles/css/Custom.css';
 
 export default class Layout extends React.Component {
   render() {

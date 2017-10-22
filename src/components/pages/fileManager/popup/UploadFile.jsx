@@ -40,6 +40,7 @@ export default class FileUploader extends React.Component {
           total: file.size,
           loaded: 0,
           status: 'loading',
+
           getProgress: function() {
             return 100 * this.loaded / this.total;
           },
@@ -101,8 +102,8 @@ export default class FileUploader extends React.Component {
     });
     this.setState({ uploadingFiles: files });
 
-    // Update files list
-    dispatch('file-manager:directory:load', { path: this.props.path });
+    // File uploaded callback
+    this.props.onUploadSuccess(uploadedFile);
   }
 
   uploadError(error) {
@@ -112,6 +113,7 @@ export default class FileUploader extends React.Component {
         files[i].status = 'error';
         files[i].loaded = 0;
         files[i].message = error.message;
+        this.props.onUploadFail(files[i]);
         break;
       }
     }
@@ -128,7 +130,7 @@ export default class FileUploader extends React.Component {
 
   get uploadderConfig() {
     return {
-      baseUrl: config.backUrl + '/file',
+      baseUrl: config.backUrl + '/file/upload',
       param:{
         path: this.props.path
       },
@@ -154,7 +156,7 @@ export default class FileUploader extends React.Component {
               onDragEnter={this.handelDragEnter.bind(this)}
               onDragLeave={this.handelDragLeave.bind(this)}
             >
-              Drop files here...
+              Бросьте файл для загрузки...
             </FileDragAndDrop>
           </div>
           <FileUpload ref="fileUploader" options={this.uploadderConfig}></FileUpload>
@@ -178,8 +180,8 @@ export default class FileUploader extends React.Component {
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" onClick={this.clearCompleted.bind(this)}>Clear completed</button>
-          <button type="button" class="btn btn-default" onClick={this.closePopup.bind(this)}>Cancel</button>
+          <button type="button" class="btn btn-primary" onClick={this.clearCompleted.bind(this)}>Очистить завершенные</button>
+          <button type="button" class="btn btn-default" onClick={this.closePopup.bind(this)}>Отмена</button>
         </div>
       </div>
     );
