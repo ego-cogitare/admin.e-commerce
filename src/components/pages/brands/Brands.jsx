@@ -1,9 +1,11 @@
 import React from 'react';
-import { dispatch, subscribe, unsubscribe } from '../../../core/helpers/EventEmitter';
 import BootstrapTable from 'reactjs-bootstrap-table';
 import FileDragAndDrop from 'react-file-drag-and-drop';
 import FileUpload from 'react-fileupload';
 import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
+import { dispatch } from '../../../core/helpers/EventEmitter';
+import { buildUrl } from '../../../core/helpers/Utils';
+import { list, get, add, addPicture } from '../../../actions/Brand';
 
 export default class AddUser extends React.Component {
 
@@ -11,29 +13,20 @@ export default class AddUser extends React.Component {
     super(props);
 
     this.state = {
+      mode: this.props.params.id ? 'edit' : 'add',
+
+      // Path to upload brand pictures
       path: '/uploads',
 
-      brands: [
-        {
-          id: 1,
-          title: 'Brand #1',
-          pictureId: 112,
-          pictures: [
-            {
-              id: 110,
-              path: 'files/brands/brand-01.png'
-            },
-            {
-              id: 111,
-              path: 'files/brands/brand-02.png'
-            },
-            {
-              id: 112,
-              path: 'files/brands/brand-03.png'
-            },
-          ]
-        }
-      ]
+      // Current selected brand
+      selected: {
+        title: '',
+        pictureId: null,
+        pictures: []
+      },
+
+      // Brands list
+      brands: []
     };
   }
 
@@ -41,6 +34,12 @@ export default class AddUser extends React.Component {
     dispatch('page:titles:change', {
       pageTitle: 'Управление брэндами'
     });
+
+    // Get brands list
+    list({ limit: 10, offset: 0 },
+      (r) => console.log(r),
+      (e) => console.error(e),
+    );
   }
 
   /**
@@ -51,16 +50,9 @@ export default class AddUser extends React.Component {
       <UploadFileDialog
         ref="newDirectoryDialog"
         path={this.state.path}
-        onUploadSuccess={(file) => console.log('Uploaded file', file)}
+        onUploadSuccess={(file) => this.addBrandPictureHandler(this.state.selected, file)}
         onUploadFail={(file) => console.log('Error', file)}
       />;
-  }
-
-  uploadFiles() {
-    dispatch('popup:show', {
-      title: 'Перетяните и бросьте файл для загрузки',
-      body: this.uploadFileDialog
-    });
   }
 
   get columns() {
@@ -103,15 +95,95 @@ export default class AddUser extends React.Component {
     });
   }
 
-  uploadBrandPicture() {
-    this.uploadFiles();
+  _uploadFiles() {
+    dispatch('popup:show', {
+      title: 'Перетяните и бросьте файл для загрузки',
+      body: this.uploadFileDialog
+    });
   }
 
-  addBrand(e) {
+  _addBrand(onSuccess = ()=>null, onFail = ()=>null) {
+    this.state.selected.title = this.refs.brandTitle.value;
+
+    add({ ...this.state.selected },
+      (r) => {
+        this.setState({ mode: 'edit', selected: this.state.selected }, () => {
+          onSuccess(r);
+        });
+      },
+      onFail
+    );
+  }
+
+  addBrandHandler(e) {
     e.preventDefault();
 
-    console.log(this);
-    console.log(e.target);
+    this._addBrand(
+      (brand) => {
+        dispatch('notification:throw', {
+          type: 'success',
+          title: 'Успех',
+          message: 'Брэнд успешно добавлен'
+        });
+      },
+      () => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
+  }
+
+  updateBrandHandler(e) {
+    e.preventDefault();
+
+  }
+
+  addBrandPictureHandler(brand, picture) {
+    const addPicture = (brand, picture) => {
+      this._addBrandPicture(brand, picture,
+        () => {
+          dispatch('notification:throw', {
+            type: 'success',
+            title: 'Успех',
+            message: 'Изображение брэнда добавлено'
+          });
+        },
+        () => {
+          dispatch('notification:throw', {
+            type: 'danger',
+            title: 'Ошибка',
+            message: e.responseJSON.error
+          });
+        }
+      );
+    };
+
+    (brand.id)
+      // Add picture to existing brand
+      ? addPicture(brand, picture)
+
+      // Add picture to unexisting brand. First brand should be added
+      : this._addBrand(
+          (brand) => addPicture(brand, picture),
+          () => dispatch('notification:throw', {
+            type: 'danger',
+            title: 'Ошибка',
+            message: e.responseJSON.error
+          })
+      );
+  }
+
+  _addBrandPicture(brand, picture, onSuccess = ()=>null, onFail = ()=>null) {
+    this.state.selected.pictures = this.state.selected.pictures.concat(picture);
+    this.state.selected.id = brand.id;
+
+    addPicture({ brandId: brand.id, pictureId: picture.id },
+      (r) => this.setState({ selected: this.state.selected }, ()=>onSuccess(r) ),
+      onFail
+    );
   }
 
   render() {
@@ -127,24 +199,30 @@ export default class AddUser extends React.Component {
             <div class="box-body">
               <div class="form-group">
                 <label for="brandTitle">Название брэнда</label>
-                <input type="text" ref="brandTitle" class="form-control" id="brandTitle" placeholder="Введите название брэнда" />
+                <input type="text" ref="brandTitle" class="form-control" id="brandTitle" defaultValue={this.state.selected.title} placeholder="Введите название брэнда" />
               </div>
               <div class="form-group">
                 <label>Изображения брэнда</label>
-                <div class="brands">
+                <div class="brand-pictures">
                   {
-                    this.state.brands.map((brand) => {
+                    this.state.selected.pictures.map((picture) => {
                       return (
-                        <div key={brand.id} class="brand">{brand.id}</div>
+                        <div key={picture.id} class="brand-picture">
+                          <img width="100" height="100" src={buildUrl(picture)} alt={picture.name} />
+                        </div>
                       );
                     })
                   }
-                  <div class="brand empty" onClick={this.uploadBrandPicture.bind(this)}>+</div>
+                  <div class="brand-picture empty" onClick={this._uploadFiles.bind(this)}>+</div>
                 </div>
               </div>
             </div>
             <div class="box-footer">
-              <button type="submit" class="btn btn-primary" onClick={this.addBrand.bind(this)}>Добавить</button>
+              {
+                (this.state.mode === 'add') ?
+                  <button type="submit" class="btn btn-primary" onClick={this.addBrandHandler.bind(this)}>Добавить</button> :
+                  <button type="submit" class="btn btn-primary" onClick={this.updateBrandHandler.bind(this)}>Сохранить</button>
+              }
             </div>
           </div>
 
@@ -163,7 +241,7 @@ export default class AddUser extends React.Component {
                 onSort={this.onSort.bind(this)}
                 onChange={this.onChange.bind(this)}
               >
-                <div class="text-center">Ниодного брэнда небыло добавлено.</div>
+                <div class="text-center">Список брэндов пуст.</div>
               </BootstrapTable>
               <br/>
               {/* this.state.selectedUser.id &&

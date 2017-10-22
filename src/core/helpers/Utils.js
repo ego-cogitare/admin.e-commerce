@@ -1,3 +1,3 @@
 export function buildUrl(file) {
-  return config.backUrl + '/file/content?path=' + file.path + '&name=' + file.name;
+  return `${config.backUrl}${file.path}/${file.name}`;
 };

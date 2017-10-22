@@ -1,4 +1,4 @@
-.brands .brand {
+.brand-pictures .brand-picture {
   width: 100px;
   height: 100px;
   font-weight: bold;
@@ -14,6 +14,6 @@
   transition: all 0.3s 0s;
 }
 
-.brands .brand.empty:hover {
+.brand-pictures .brand-picture.empty:hover {
   color: #333;
 }
