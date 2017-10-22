@@ -14,6 +14,17 @@
   transition: all 0.3s 0s;
 }
 
+.brand-pictures .brand-picture IMG {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  vertical-align: top;
+}
+
 .brand-pictures .brand-picture.empty:hover {
   color: #333;
+}
+
+.brand-pictures .brand-picture.selected {
+  border-color: #0c0;
 }

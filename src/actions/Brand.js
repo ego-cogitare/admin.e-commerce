@@ -9,10 +9,14 @@ export function add(data, success, error) {
     request(`/brand/add`, data, 'post', success, error);
 };
 
+export function update(data, success, error) {
+    request(`/brand/update/${data.id}`, data, 'post', success, error);
+};
+
 export function addPicture(data, success, error) {
     request(`/brand/add-picture`, data, 'post', success, error);
 };
 
-export function get(id, success, error) {
-    request(`/brand/get`, { id }, 'get', success, error);
+export function get({ id }, success, error) {
+    request(`/brand/get/${id}`, {}, 'get', success, error);
 };
