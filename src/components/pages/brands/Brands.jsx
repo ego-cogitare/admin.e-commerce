@@ -40,7 +40,10 @@ export default class AddUser extends React.Component {
 
     // Get brands list
     list({ limit: 10, offset: 0 },
-      (r) => this.setState({ brands: r }),
+      (brands) => {
+        this.setState({ brands });
+        this.brands = brands;
+      },
       (e) => {
         dispatch('notification:throw', {
           type: 'danger',
@@ -106,29 +109,28 @@ export default class AddUser extends React.Component {
   onSort(colName, dir) {
     switch (dir) {
       case 'asc':
-        this.setState({ users: this.state.users.sort((a, b) => a[colName] > b[colName] ? 1 : -1 ) });
+        this.setState({ brands: this.state.brands.sort((a, b) => a[colName] > b[colName] ? 1 : -1 ) });
       break;
 
       case 'desc':
-        this.setState({ users: this.state.users.sort((a, b) => b[colName] > a[colName] ? 1 : -1 ) });
+        this.setState({ brands: this.state.brands.sort((a, b) => b[colName] > a[colName] ? 1 : -1 ) });
       break;
 
       default:
-        this.setState({ users: this.state.users });
+        this.setState({ brands: this.state.brands });
       break;
     }
   }
 
   onChange(selection) {
-    // this.setState({
-    //   selectedUser: this.state.userMap[Object.keys(selection).pop()]
-    // });
+    this.setState({
+      selected: Object.values(selection)[0]
+    });
   }
 
-  filter(e) {
-    this.setState({ users: this.users
-      .filter((el) => {
-        return el.name.toLowerCase().match(e.target.value.toLowerCase());
+  filterChangeHandler(e) {
+    this.setState({ brands: this.brands.filter((brand) => {
+        return brand.title.toLowerCase().match(e.target.value.toLowerCase());
       })
     });
   }
@@ -160,7 +162,10 @@ export default class AddUser extends React.Component {
             selected: this.state.selected,
             brands: this.state.brands.concat(this.state.selected)
           },
-          () => onSuccess(r)
+          () => {
+            this.brands = this.brands.concat(this.state.selected);
+            onSuccess(r);
+          }
         );
       },
       onFail
@@ -294,7 +299,15 @@ export default class AddUser extends React.Component {
             <div class="box-body">
               <div class="form-group">
                 <label for="brandTitle">Название брэнда</label>
-                <input type="text" ref="brandTitle" class="form-control" id="brandTitle" onChange={this.brandTitleChange.bind(this)} value={this.state.selected.title || ''} placeholder="Введите название брэнда" />
+                <input
+                  type="text"
+                  ref="brandTitle"
+                  class="form-control"
+                  id="brandTitle"
+                  onChange={this.brandTitleChange.bind(this)}
+                  value={this.state.selected.title || ''}
+                  placeholder="Введите название брэнда"
+                />
               </div>
               <div class="form-group">
                 <label>Изображения брэнда</label>
@@ -302,7 +315,11 @@ export default class AddUser extends React.Component {
                   {
                     (this.state.selected.pictures || []).map((picture) => {
                       return (
-                        <div key={picture.id} onClick={this.setBrandPictureHandler.bind(this, picture)} class={"brand-picture".concat(this.state.selected.pictureId === picture.id ? ' selected' : '')}>
+                        <div
+                          key={picture.id}
+                          onClick={this.setBrandPictureHandler.bind(this, picture)}
+                          class={"brand-picture".concat(this.state.selected.pictureId === picture.id ? ' selected' : '')}
+                        >
                           <img src={`${buildUrl(picture)}`} />
                         </div>
                       );
@@ -329,6 +346,14 @@ export default class AddUser extends React.Component {
               <h3 class="box-title">Список брэндов</h3>
             </div>
             <div class="box-body data-table-container">
+              <div class="row">
+                <div class="col-lg-3 pull-right" style={{ marginBottom: '10px' }}>
+                  <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                    <input type="text" class="form-control" defaultValue="" onChange={this.filterChangeHandler.bind(this)} placeholder="Фильтр" />
+                  </div>
+                </div>
+              </div>
               <BootstrapTable
                 columns={this.columns}
                 data={this.state.brands}
