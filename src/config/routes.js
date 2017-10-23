@@ -12,9 +12,13 @@ const routes = {
       path: 'file-manager',
       component: require('../components/pages/fileManager/FileManager.jsx').default
     },
+    // {
+    //   path: 'users',
+    //   component: require('../components/pages/users/Users.jsx').default
+    // },
     {
-      path: 'users',
-      component: require('../components/pages/users/Users.jsx').default
+      path: 'settings',
+      component: require('../components/pages/settings/Settings.jsx').default
     },
 
     // Coordinator components

@@ -50,7 +50,7 @@ module.exports = {
   plugins: [
     new webpack.ProvidePlugin({ config: 'config' }),
     new WebpackCleanupPlugin({
-      // exclude: ['dev.html', 'vendors/**/*', 'icons/**/*'],
+      exclude: ['vendors/**/*', 'icons/**/*'],
     }),
     new HtmlWebpackPlugin({
       title: 'Admin panel',

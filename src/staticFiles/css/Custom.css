@@ -28,3 +28,12 @@
 .brand-pictures .brand-picture.selected {
   border-color: #ff0808;
 }
+
+.settings .currency LABEL {
+  display: block;
+}
+
+.settings .currency LABEL > SPAN {
+  vertical-align: middle;
+  margin-left: 5px;
+}

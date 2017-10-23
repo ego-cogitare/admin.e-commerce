@@ -17,10 +17,6 @@ export default class LeftMenu extends React.Component {
     };
   }
 
-  componentWillMount() {
-
-  }
-
   render() {
     return (
       <header className="main-header">
@@ -49,7 +45,9 @@ export default class LeftMenu extends React.Component {
                </a>
              </li>
              <li>
-               <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
+               <Link to="settings">
+                 <i class="fa fa-gears"></i>
+               </Link>
              </li>
              <li>
                <a href="#" onClick={logout} data-toggle="control-sidebar"><i class="fa fa-power-off"></i></a>
