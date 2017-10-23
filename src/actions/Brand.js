@@ -13,6 +13,10 @@ export function update(data, success, error) {
     request(`/brand/update/${data.id}`, data, 'post', success, error);
 };
 
+export function remove(data, success, error) {
+    request(`/brand/remove/${data.id}`, {}, 'post', success, error);
+};
+
 export function addPicture(data, success, error) {
     request(`/brand/add-picture`, data, 'post', success, error);
 };

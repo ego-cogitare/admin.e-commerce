@@ -4,9 +4,10 @@ import BootstrapTable from 'reactjs-bootstrap-table';
 import FileDragAndDrop from 'react-file-drag-and-drop';
 import FileUpload from 'react-fileupload';
 import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
+import DeleteBrandDialog from './popups/DeleteBrandDialog.jsx';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
-import { list, get, add, update, addPicture } from '../../../actions/Brand';
+import { list, get, add, update, remove, addPicture } from '../../../actions/Brand';
 
 export default class AddUser extends React.Component {
 
@@ -21,6 +22,7 @@ export default class AddUser extends React.Component {
 
       // Current selected brand
       selected: {
+        id: null,
         title: '',
         pictureId: null,
         pictures: []
@@ -72,19 +74,31 @@ export default class AddUser extends React.Component {
         onUploadSuccess={(file) => this.addBrandPictureHandler(this.state.selected, file)}
         onUploadFail={(file) => console.log('Error', file)}
       />;
+
+    this.deleteBrandDialog = <DeleteBrandDialog onDeleteClick={this._deleteBrand.bind(this)} />;
   }
 
   get columns() {
     return [
       { name: 'picture', width: 5, display: 'Лого', sort: false, renderer: (row) => {
-        return null;
+        if (!row.pictureId) {
+          return null;
+        }
+        return (
+          <img
+            width="30"
+            height="30"
+            src={buildUrl(row.pictures.filter(({id}) => id===row.pictureId)[0])}
+            style={{ objectFit: 'cover' }}
+          />
+        );
       } },
       { name: 'title', display: 'Брэнд', sort: true },
       { name: 'edit', display: 'Править', sort: false, width: 10, renderer: (row) => {
-        return <Link to={"brands/" + row.id}><span class="fa fa-edit"></span></Link>;
+        return <Link to={"brands/" + row.id} onClick={this.selectBrandHandler.bind(this, row)}><span class="fa fa-edit"></span></Link>;
       } },
       { name: 'remove', display: 'Удалить', sort: false, width: 10, renderer: (row) => {
-        return <a href="#" onClick={this.removeBrandHandler.bind(this, row)}><span class="fa fa-trash"></span></a>;
+        return <a href="#" onClick={this.deleteBrandHandler.bind(this, row)}><span class="fa fa-trash"></span></a>;
       } },
     ];
   }
@@ -106,9 +120,9 @@ export default class AddUser extends React.Component {
   }
 
   onChange(selection) {
-    this.setState({
-      selectedUser: this.state.userMap[Object.keys(selection).pop()]
-    });
+    // this.setState({
+    //   selectedUser: this.state.userMap[Object.keys(selection).pop()]
+    // });
   }
 
   filter(e) {
@@ -117,6 +131,10 @@ export default class AddUser extends React.Component {
         return el.name.toLowerCase().match(e.target.value.toLowerCase());
       })
     });
+  }
+
+  selectBrandHandler(brand) {
+    this.setState({ selected: brand, mode: 'edit' });
   }
 
   brandTitleChange(e) {
@@ -136,9 +154,14 @@ export default class AddUser extends React.Component {
 
     add({ ...this.state.selected },
       (r) => {
-        this.setState({ mode: 'edit', selected: this.state.selected }, () => {
-          onSuccess(r);
-        });
+        this.state.selected.id = r.id;
+        this.setState({
+            mode: 'edit',
+            selected: this.state.selected,
+            brands: this.state.brands.concat(this.state.selected)
+          },
+          () => onSuccess(r)
+        );
       },
       onFail
     );
@@ -155,7 +178,7 @@ export default class AddUser extends React.Component {
           message: 'Брэнд успешно добавлен'
         });
       },
-      () => {
+      (e) => {
         dispatch('notification:throw', {
           type: 'danger',
           title: 'Ошибка',
@@ -176,7 +199,7 @@ export default class AddUser extends React.Component {
           message: 'Брэнд успешно обновлен'
         });
       },
-      () => {
+      (e) => {
         dispatch('notification:throw', {
           type: 'danger',
           title: 'Ошибка',
@@ -187,7 +210,7 @@ export default class AddUser extends React.Component {
   }
 
   addBrandPictureHandler(brand, picture) {
-    addPicture({ brandId: brand.id, pictureId: picture.id },
+    addPicture({ brand, picture },
       (r) => {
         this.setState({ selected: r, mode: 'edit' }, () => {
           dispatch('notification:throw', {
@@ -207,8 +230,55 @@ export default class AddUser extends React.Component {
     );
   }
 
-  removeBrandHandler() {
+  setBrandPictureHandler({ id }, e) {
+    this.state.selected.pictureId = id;
+    this.setState({ selected: this.state.selected });
+  }
 
+  deleteBrandHandler(brand, e) {
+    e.preventDefault();
+
+    this.brandToDelete = brand;
+    dispatch('popup:show', {
+      title: 'Подтвердите действие',
+      body: this.deleteBrandDialog
+    });
+  }
+
+  _deleteBrand() {
+    dispatch('popup:close');
+
+    remove(this.brandToDelete,
+      (r) => {
+        this.setState({
+          brands: this.state.brands.filter(({id}) => id !== this.brandToDelete.id)
+        });
+        dispatch('notification:throw', {
+          type: 'warning',
+          title: 'Успех',
+          message: 'Брэнд успешно удален'
+        });
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
+  }
+
+  resetBrandHandler() {
+    this.setState({
+      mode: 'add',
+      selected: {
+        id: null,
+        title: '',
+        pictureId: null,
+        pictures: []
+      }
+    });
   }
 
   render() {
@@ -224,15 +294,15 @@ export default class AddUser extends React.Component {
             <div class="box-body">
               <div class="form-group">
                 <label for="brandTitle">Название брэнда</label>
-                <input type="text" ref="brandTitle" class="form-control" id="brandTitle" onChange={this.brandTitleChange.bind(this)} value={this.state.selected.title} placeholder="Введите название брэнда" />
+                <input type="text" ref="brandTitle" class="form-control" id="brandTitle" onChange={this.brandTitleChange.bind(this)} value={this.state.selected.title || ''} placeholder="Введите название брэнда" />
               </div>
               <div class="form-group">
                 <label>Изображения брэнда</label>
                 <div class="brand-pictures">
                   {
-                    this.state.selected.pictures.map((picture) => {
+                    (this.state.selected.pictures || []).map((picture) => {
                       return (
-                        <div key={picture.id} class={"brand-picture".concat(this.state.selected.pictureId === picture.id ? ' selected' : '')}>
+                        <div key={picture.id} onClick={this.setBrandPictureHandler.bind(this, picture)} class={"brand-picture".concat(this.state.selected.pictureId === picture.id ? ' selected' : '')}>
                           <img src={`${buildUrl(picture)}`} />
                         </div>
                       );
@@ -245,8 +315,11 @@ export default class AddUser extends React.Component {
             <div class="box-footer">
               {
                 (this.state.mode === 'add') ?
-                  <button type="submit" class="btn btn-primary" onClick={this.addBrandHandler.bind(this)}>Добавить</button> :
-                  <button type="submit" class="btn btn-primary" onClick={this.updateBrandHandler.bind(this)}>Сохранить</button>
+                  <button type="submit" class="btn btn-primary fa fa-check" onClick={this.addBrandHandler.bind(this)}> Добавить</button> :
+                  <div class="btn-group">
+                    <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateBrandHandler.bind(this)}> Сохранить</button>
+                    <button type="submit" class="btn btn-default fa fa-file-o" onClick={this.resetBrandHandler.bind(this)}> Новый</button>
+                  </div>
               }
             </div>
           </div>
@@ -268,13 +341,6 @@ export default class AddUser extends React.Component {
               >
                 <div class="text-center">Список брэндов пуст.</div>
               </BootstrapTable>
-              <br/>
-              {/* this.state.selectedUser.id &&
-                 <div>
-                  { `${this.state.selectedUser.firstName} ${this.state.selectedUser.lastName}  ` }
-                  <button className="btn btn-danger" onClick={this.deleteUser.bind(this)}>Delete</button>
-                </div>
-               */}
             </div>
           </div>
         </div>
