@@ -13,24 +13,27 @@ export default class Categories extends React.Component {
   constructor(props) {
     super(props);
 
+    this.emptyCategory = {
+      id: null,
+      title: '',
+      description: '',
+      settings: {
+        isHidden: false,
+        discount: 0,
+        discountType: Settings.get('currencyCode')
+      }
+    };
+
     this.state = {
       mode: this.props.params.id ? 'edit' : 'add',
 
-      // Current selected brand
-      selected: {
-        id: null,
-        title: '',
-        description: null,
-        settings: {
-          isHidden: false,
-          discount: 0
-        }
-      },
+      // Current selected category
+      selected: JSON.parse(JSON.stringify(this.emptyCategory)),
 
       // Categories list
       categories: [],
 
-      currencyCode: Settings.get('currencyCode')
+      discountType: this.getDiscountTypeLabel()
     };
   }
 
@@ -133,6 +136,7 @@ export default class Categories extends React.Component {
 
   _addCategory(onSuccess = ()=>null, onFail = ()=>null) {
     this.state.selected.title = this.refs.categoryTitle.value;
+    this.state.selected.description = this.refs.categoryDescription.value;
 
     add({ ...this.state.selected },
       (r) => {
@@ -143,7 +147,7 @@ export default class Categories extends React.Component {
             categories: this.state.categories.concat(this.state.selected)
           },
           () => {
-            this.categories = this.categories.concat(this.state.selected);
+            this.categories = this.state.categories;
             onSuccess(r);
           }
         );
@@ -228,26 +232,41 @@ export default class Categories extends React.Component {
     );
   }
 
+  isCategoryHiddenChange(e) {
+    this.state.selected.settings.isHidden = !e.target.checked;
+    this.setState({ selected: this.state.selected });
+  }
+
   resetCategoryHandler() {
     this.setState({
       mode: 'add',
-      selected: {
-        id: null,
-        title: '',
-        description: '',
-        settings: {}
-      }
+      selected: JSON.parse(JSON.stringify(this.emptyCategory))
     });
   }
 
-  categoryDiscountTypeChanged(type, e) {
-    e.preventDefault();
-
-    this.setState({ currencyCode: type });
+  getDiscountTypeLabel(discountType) {
+    return (!discountType) ? 'Нет' :
+      (discountType !== '%') ? Settings.get('currencyCode') : '%';
   }
 
-  categoryDiscountChange() {
+  categoryDiscountTypeChanged(discountType, e) {
+    e.preventDefault();
 
+    Object.assign(this.state.selected.settings, { discountType });
+
+    this.setState({
+      selected: this.state.selected,
+      discountType: this.getDiscountTypeLabel(discountType)
+    });
+
+    this.refs.categoryDiscount.disabled = !discountType;
+  }
+
+  categoryDiscountChange(e) {
+    Object.assign(this.state.selected.settings, {
+      discount: e.target.value.replace(/[^\d\.]/g, '')
+    });
+    this.setState({ selected: this.state.selected });
   }
 
   render() {
@@ -291,6 +310,8 @@ export default class Categories extends React.Component {
                   id="isCategoryHidden"
                   checkboxClass="icheckbox_square-blue"
                   increaseArea="20%"
+                  checked={this.state.selected.settings.isHidden}
+                  onChange={this.isCategoryHiddenChange.bind(this)}
                 />
                 <span class="help-block">Если включено, то все товары данной категории не будут отображены на сайте.</span>
               </div>
@@ -306,15 +327,16 @@ export default class Categories extends React.Component {
                     onChange={this.categoryDiscountChange.bind(this)}
                     value={this.state.selected.settings.discount || ''}
                     style={{ width: 60 }}
+                    disabled
                   />
                   <div class="input-group-btn pull-left">
-                    <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">{ this.state.currencyCode || 'Нет' }
+                    <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">{ this.state.discountType }
                       <span class="fa fa-caret-down"></span>
                     </button>
                     <ul class="dropdown-menu">
                       <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, false)}>Нет</a></li>
                       <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, '%')}>%</a></li>
-                      <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, Settings.get('currencyCode'))}>{ Settings.get('currencyCode') }</a></li>
+                      <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, 'const')}>{ Settings.get('currencyCode') }</a></li>
                     </ul>
                   </div>
                 </div>
