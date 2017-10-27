@@ -9,7 +9,7 @@ import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
 import { list, get, add, update, remove, addPicture } from '../../../actions/Brand';
 
-export default class AddUser extends React.Component {
+export default class Brands extends React.Component {
 
   constructor(props) {
     super(props);
@@ -18,7 +18,7 @@ export default class AddUser extends React.Component {
       mode: this.props.params.id ? 'edit' : 'add',
 
       // Path to upload brand pictures
-      path: '/uploads',
+      path: config.staticFiles,
 
       // Current selected brand
       selected: {
@@ -123,9 +123,9 @@ export default class AddUser extends React.Component {
   }
 
   onChange(selection) {
-    this.setState({
-      selected: Object.values(selection)[0]
-    });
+    // this.setState({
+    //   selected: Object.values(selection)[0]
+    // });
   }
 
   filterChangeHandler(e) {
@@ -298,7 +298,7 @@ export default class AddUser extends React.Component {
             </div>
             <div class="box-body">
               <div class="form-group">
-                <label for="brandTitle">Название брэнда</label>
+                <label for="brandTitle">Название брэнда *</label>
                 <input
                   type="text"
                   ref="brandTitle"

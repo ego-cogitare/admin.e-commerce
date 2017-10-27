@@ -9,6 +9,10 @@ const routes = {
       component: require('../components/pages/brands/Brands.jsx').default
     },
     {
+      path: 'categories(/:id)',
+      component: require('../components/pages/categories/Categories.jsx').default
+    },
+    {
       path: 'file-manager',
       component: require('../components/pages/fileManager/FileManager.jsx').default
     },

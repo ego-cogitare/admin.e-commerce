@@ -1,7 +1,7 @@
 import React from 'react';
 import { dispatch, subscribe, unsubscribe } from '../../../core/helpers/EventEmitter';
-import {Radio, RadioGroup} from 'react-icheck';
-import { currencyList } from '../../../actions/Settings';
+import { Radio, RadioGroup } from 'react-icheck';
+import { get } from '../../../actions/Settings';
 // import 'icheck/skins/all.css';
 
 export default class Settings extends React.Component {
@@ -21,7 +21,7 @@ export default class Settings extends React.Component {
       pageTitle: 'Управление настройками магазина'
     });
 
-    currencyList(
+    get(
       ({ currencyList, currencyCource, currencyCode }) => {
         this.setState({
           currencyList: JSON.parse(currencyList),
