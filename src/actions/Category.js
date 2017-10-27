@@ -9,8 +9,8 @@ export function add(data, success, error) {
     request(`/category/add`, data, 'post', success, error);
 };
 
-export function update({ id }, success, error) {
-    request(`/category/update/${id}`, data, 'post', success, error);
+export function update(data, success, error) {
+    request(`/category/update/${data.id}`, data, 'post', success, error);
 };
 
 export function remove({ id }, success, error) {

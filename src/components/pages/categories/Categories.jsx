@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import BootstrapTable from 'reactjs-bootstrap-table';
 import DeleteCategoryDialog from './popups/DeleteCategoryDialog.jsx';
 import Settings from '../../../core/helpers/Settings';
-import { Checkbox } from 'react-icheck';
+import { Checkbox, Radio, RadioGroup } from 'react-icheck';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
 import { list, get, add, update, remove } from '../../../actions/Category';
@@ -15,13 +15,12 @@ export default class Categories extends React.Component {
 
     this.emptyCategory = {
       id: null,
+      parrentId: null,
       title: '',
       description: '',
-      settings: {
-        isHidden: false,
-        discount: 0,
-        discountType: Settings.get('currencyCode')
-      }
+      isHidden: false,
+      discount: 0,
+      discountType: Settings.get('currencyCode')
     };
 
     this.state = {
@@ -35,6 +34,10 @@ export default class Categories extends React.Component {
 
       discountType: this.getDiscountTypeLabel()
     };
+  }
+
+  _expandModel(category) {
+    return category;
   }
 
   componentDidMount() {
@@ -59,7 +62,14 @@ export default class Categories extends React.Component {
 
     if (this.props.params.id) {
       get({ id: this.props.params.id },
-        (r) => this.setState({ selected: r, mode: 'edit' }),
+        (r) => {
+          this.setState({
+            selected: this._expandModel(r),
+            discountType: this.getDiscountTypeLabel(r.discountType),
+            mode: 'edit'
+          });
+          this.refs.categoryDiscount.disabled = !r.discountType;
+        },
         (e) => {
           dispatch('notification:throw', {
             type: 'danger',
@@ -120,8 +130,13 @@ export default class Categories extends React.Component {
     });
   }
 
-  selectCategoryHandler(category) {
-    this.setState({ selected: category, mode: 'edit' });
+  selectCategoryHandler(selected) {
+    this.setState({
+      selected,
+      discountType: this.getDiscountTypeLabel(selected.discountType),
+      mode: 'edit'
+    });
+    this.refs.categoryDiscount.disabled = !selected.discountType;
   }
 
   categoryTitleChange(e) {
@@ -214,7 +229,7 @@ export default class Categories extends React.Component {
     remove(this.categoryToDelete,
       (r) => {
         this.setState({
-          categories: this.state.categories.filter(({id}) => id !== this.catogoryToDelete.id)
+          categories: this.state.categories.filter(({id}) => id !== this.categoryToDelete.id)
         });
         dispatch('notification:throw', {
           type: 'warning',
@@ -233,7 +248,7 @@ export default class Categories extends React.Component {
   }
 
   isCategoryHiddenChange(e) {
-    this.state.selected.settings.isHidden = !e.target.checked;
+    this.state.selected.isHidden = !e.target.checked;
     this.setState({ selected: this.state.selected });
   }
 
@@ -252,20 +267,16 @@ export default class Categories extends React.Component {
   categoryDiscountTypeChanged(discountType, e) {
     e.preventDefault();
 
-    Object.assign(this.state.selected.settings, { discountType });
-
+    this.state.selected.discountType = discountType;
     this.setState({
       selected: this.state.selected,
       discountType: this.getDiscountTypeLabel(discountType)
     });
-
     this.refs.categoryDiscount.disabled = !discountType;
   }
 
   categoryDiscountChange(e) {
-    Object.assign(this.state.selected.settings, {
-      discount: e.target.value.replace(/[^\d\.]/g, '')
-    });
+    this.state.selected.discount = e.target.value.replace(/[^\d\.]/g, '');
     this.setState({ selected: this.state.selected });
   }
 
@@ -280,6 +291,45 @@ export default class Categories extends React.Component {
               <h3 class="box-title">Добавить новую категорию</h3>
             </div>
             <div class="box-body">
+              <div class="form-group">
+                <label>Родительская категория</label>
+                <RadioGroup name="radio" value="2">
+                  <Radio
+                    value="1"
+                    radioClass="iradio_square-blue"
+                    increaseArea="20%"
+                    label=" Категория 1"
+                  />
+                  <br/>
+                    <Radio
+                      value="11"
+                      radioClass="iradio_square-blue ml-1"
+                      increaseArea="20%"
+                      label=" Категория 1.1"
+                    />
+                    <br/>
+                    <Radio
+                      value="12"
+                      radioClass="iradio_square-blue"
+                      increaseArea="20%"
+                      label=" Категория 1.2"
+                    />
+                  <br/>
+                  <Radio
+                    value="2"
+                    radioClass="iradio_square-blue"
+                    increaseArea="20%"
+                    label=" Категория 2"
+                  />
+                  <br/>
+                  <Radio
+                    value="3"
+                    radioClass="iradio_square-blue"
+                    increaseArea="20%"
+                    label=" Категория 3"
+                  />
+                </RadioGroup>
+              </div>
               <div class="form-group">
                 <label for="categoryTitle">Название категории *</label>
                 <input
@@ -310,7 +360,7 @@ export default class Categories extends React.Component {
                   id="isCategoryHidden"
                   checkboxClass="icheckbox_square-blue"
                   increaseArea="20%"
-                  checked={this.state.selected.settings.isHidden}
+                  checked={this.state.selected.isHidden}
                   onChange={this.isCategoryHiddenChange.bind(this)}
                 />
                 <span class="help-block">Если включено, то все товары данной категории не будут отображены на сайте.</span>
@@ -325,7 +375,7 @@ export default class Categories extends React.Component {
                     id="categoryDiscount"
                     placeholder="0"
                     onChange={this.categoryDiscountChange.bind(this)}
-                    value={this.state.selected.settings.discount || ''}
+                    value={this.state.selected.discount || ''}
                     style={{ width: 60 }}
                     disabled
                   />
@@ -334,7 +384,7 @@ export default class Categories extends React.Component {
                       <span class="fa fa-caret-down"></span>
                     </button>
                     <ul class="dropdown-menu">
-                      <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, false)}>Нет</a></li>
+                      <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, '')}>Нет</a></li>
                       <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, '%')}>%</a></li>
                       <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, 'const')}>{ Settings.get('currencyCode') }</a></li>
                     </ul>
