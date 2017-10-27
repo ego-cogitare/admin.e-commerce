@@ -295,6 +295,13 @@ export default class Categories extends React.Component {
                 <label>Родительская категория</label>
                 <RadioGroup name="radio" value="2">
                   <Radio
+                    value="-1"
+                    radioClass="iradio_square-blue"
+                    increaseArea="20%"
+                    label="<span class='text-gray'> Нет родителя</span>"
+                  />
+                  <br/>
+                  <Radio
                     value="1"
                     radioClass="iradio_square-blue"
                     increaseArea="20%"
@@ -303,7 +310,7 @@ export default class Categories extends React.Component {
                   <br/>
                     <Radio
                       value="11"
-                      radioClass="iradio_square-blue ml-1"
+                      radioClass="iradio_square-blue"
                       increaseArea="20%"
                       label=" Категория 1.1"
                     />
