@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import BootstrapTable from 'reactjs-bootstrap-table';
 import DeleteCategoryDialog from './popups/DeleteCategoryDialog.jsx';
 import Settings from '../../../core/helpers/Settings';
+import CategoriesTree from '../widgets/CategoriesTree.jsx';
 import { Checkbox, Radio, RadioGroup } from 'react-icheck';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
@@ -22,6 +23,56 @@ export default class Categories extends React.Component {
       discount: 0,
       discountType: Settings.get('currencyCode')
     };
+
+    this.categoriesList = [
+      {
+        id: null,
+        title: '(Нет)',
+        className: "text-muted"
+      },
+      {
+        id: 1,
+        title: 'Категория №1',
+        categories: [
+          {
+            id: 11,
+            title: 'Категория №1.1',
+          },
+          {
+            id: 12,
+            title: 'Категория №1.2',
+            categories: [
+              {
+                id: 121,
+                title: 'Категория №1.2.1',
+                categories: [
+                  {
+                    id: 1211,
+                    title: 'Категория №1.2.1.1',
+                  }
+                ]
+              },
+              {
+                id: 122,
+                title: 'Категория №1.2.2',
+              },
+            ]
+          },
+          {
+            id: 13,
+            title: 'Категория №1.3',
+          },
+        ]
+      },
+      {
+        id: 2,
+        title: 'Категория №2',
+      },
+      {
+        id: 3,
+        title: 'Категория №3',
+      },
+    ];
 
     this.state = {
       mode: this.props.params.id ? 'edit' : 'add',
@@ -280,6 +331,10 @@ export default class Categories extends React.Component {
     this.setState({ selected: this.state.selected });
   }
 
+  onCategorySelect(category) {
+    console.log(category);
+  }
+
   render() {
     this.initDialogs();
 
@@ -293,49 +348,13 @@ export default class Categories extends React.Component {
             <div class="box-body">
               <div class="form-group">
                 <label>Родительская категория</label>
-                <RadioGroup name="radio" value="2">
-                  <Radio
-                    value="-1"
-                    radioClass="iradio_square-blue"
-                    increaseArea="20%"
-                    label="<span class='text-gray'> Нет родителя</span>"
-                  />
-                  <br/>
-                  <Radio
-                    value="1"
-                    radioClass="iradio_square-blue"
-                    increaseArea="20%"
-                    label=" Категория 1"
-                  />
-                  <br/>
-                    <Radio
-                      value="11"
-                      radioClass="iradio_square-blue"
-                      increaseArea="20%"
-                      label=" Категория 1.1"
-                    />
-                    <br/>
-                    <Radio
-                      value="12"
-                      radioClass="iradio_square-blue"
-                      increaseArea="20%"
-                      label=" Категория 1.2"
-                    />
-                  <br/>
-                  <Radio
-                    value="2"
-                    radioClass="iradio_square-blue"
-                    increaseArea="20%"
-                    label=" Категория 2"
-                  />
-                  <br/>
-                  <Radio
-                    value="3"
-                    radioClass="iradio_square-blue"
-                    increaseArea="20%"
-                    label=" Категория 3"
-                  />
-                </RadioGroup>
+                <CategoriesTree
+                  className="form-control"
+                  categories={this.categoriesList}
+                  size="12"
+                  categoryIndent="15"
+                  onSelect={this.onCategorySelect.bind(this)}
+                />
               </div>
               <div class="form-group">
                 <label for="categoryTitle">Название категории *</label>
