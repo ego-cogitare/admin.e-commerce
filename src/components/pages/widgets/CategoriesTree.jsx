@@ -10,14 +10,28 @@ export default class CategoriesTree extends React.Component {
     };
   }
 
-  categoryBranch(category, branch = [], depth = 0) {
+  _getById(catId) {
+    return this.state.categories.filter(({ id }) => id === catId)[0];
+  }
 
-    branch.push({
-      id: category.id,
-      level: depth,
-      title: category.title,
-      className: category.className || ''
+  get selected() {
+    return this._getById(this.refs.categoryTree.value);
+  }
+
+  componentWillReceiveProps({ categories }) {
+    let tree = [];
+
+    categories.forEach((category) => {
+      tree = tree.concat(this.categoryBranch(category));
     });
+
+    this.setState({ categories: tree });
+  }
+
+  categoryBranch(category, branch = [], depth = 0) {
+    branch.push(
+      Object.assign(category, { level: depth })
+    );
 
     if (!category.categories) {
       return branch;
@@ -30,26 +44,25 @@ export default class CategoriesTree extends React.Component {
     return branch;
   }
 
-  onSelect(category) {
-    this.props.onSelect(category);
+  onChange(e) {
+    this.props.onSelect(
+      this._getById(e.target.value)
+    );
   }
 
   render() {
     return (
-      <select class={this.props.className} size={this.props.size}>
+      <select ref="categoryTree" class={this.props.className} onChange={this.onChange.bind(this)} size={this.props.size}>
         {
           this.state.categories.map((category) => {
-            const branch = this.categoryBranch(category);
-
-            return branch.map((category) => {
-              return (
-                <option
-                  key={category.id}
-                  onClick={this.onSelect.bind(this, category)}
-                  style={{ textIndent: category.level * this.props.categoryIndent }}
-                  class={'level-' + category.level + ' ' + category.className}
-                >{category.title}</option>);
-            });
+            return (
+              <option
+                value={category.id}
+                key={category.id}
+                style={{ textIndent: category.level * this.props.categoryIndent }}
+                class={'level-' + category.level + ' ' + category.className}
+              >{category.title}</option>
+            );
           })
         }
       </select>

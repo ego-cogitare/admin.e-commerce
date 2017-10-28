@@ -1,13 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router';
-import BootstrapTable from 'reactjs-bootstrap-table';
 import DeleteCategoryDialog from './popups/DeleteCategoryDialog.jsx';
 import Settings from '../../../core/helpers/Settings';
 import CategoriesTree from '../widgets/CategoriesTree.jsx';
 import { Checkbox, Radio, RadioGroup } from 'react-icheck';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
-import { list, get, add, update, remove } from '../../../actions/Category';
+import { tree, get, add, update, remove } from '../../../actions/Category';
 
 export default class Categories extends React.Component {
 
@@ -21,58 +20,8 @@ export default class Categories extends React.Component {
       description: '',
       isHidden: false,
       discount: 0,
-      discountType: Settings.get('currencyCode')
+      discountType: ''//Settings.get('currencyCode')
     };
-
-    this.categoriesList = [
-      {
-        id: null,
-        title: '(Нет)',
-        className: "text-muted"
-      },
-      {
-        id: 1,
-        title: 'Категория №1',
-        categories: [
-          {
-            id: 11,
-            title: 'Категория №1.1',
-          },
-          {
-            id: 12,
-            title: 'Категория №1.2',
-            categories: [
-              {
-                id: 121,
-                title: 'Категория №1.2.1',
-                categories: [
-                  {
-                    id: 1211,
-                    title: 'Категория №1.2.1.1',
-                  }
-                ]
-              },
-              {
-                id: 122,
-                title: 'Категория №1.2.2',
-              },
-            ]
-          },
-          {
-            id: 13,
-            title: 'Категория №1.3',
-          },
-        ]
-      },
-      {
-        id: 2,
-        title: 'Категория №2',
-      },
-      {
-        id: 3,
-        title: 'Категория №3',
-      },
-    ];
 
     this.state = {
       mode: this.props.params.id ? 'edit' : 'add',
@@ -83,7 +32,7 @@ export default class Categories extends React.Component {
       // Categories list
       categories: [],
 
-      discountType: this.getDiscountTypeLabel()
+      discountType: this.getDiscountTypeLabel(),
     };
   }
 
@@ -91,17 +40,15 @@ export default class Categories extends React.Component {
     return category;
   }
 
-  componentDidMount() {
-    dispatch('page:titles:change', {
-      pageTitle: 'Управление категориями'
-    });
-
-    // Get categories list
-    list({ limit: 10, offset: 0 },
-      (categories) => {
-        this.setState({ categories });
-        this.categories = categories;
-      },
+  _loadCategoryTree() {
+    tree({},
+      (categories) => this.setState({
+        categories: [{
+          id: "",
+          title: '(Нет)',
+          className: 'text-gray'
+        }].concat(categories)
+      }),
       (e) => {
         dispatch('notification:throw', {
           type: 'danger',
@@ -110,6 +57,15 @@ export default class Categories extends React.Component {
         });
       }
     );
+  }
+
+  componentDidMount() {
+    dispatch('page:titles:change', {
+      pageTitle: 'Управление категориями'
+    });
+
+    // Get categories list
+    this._loadCategoryTree();
 
     if (this.props.params.id) {
       get({ id: this.props.params.id },
@@ -139,48 +95,6 @@ export default class Categories extends React.Component {
     this.deleteСategoryDialog = <DeleteCategoryDialog onDeleteClick={this._deleteCategory.bind(this)} />;
   }
 
-  get columns() {
-    return [
-      { name: 'title', display: 'Категория', sort: true },
-      { name: 'description', display: 'Описание', sort: true },
-      { name: 'edit', display: 'Править', sort: false, width: 10, renderer: (row) => {
-        return <Link to={"categories/" + row.id} onClick={this.selectCategoryHandler.bind(this, row)}><span class="fa fa-edit"></span></Link>;
-      } },
-      { name: 'remove', display: 'Удалить', sort: false, width: 10, renderer: (row) => {
-        return <a href="#" onClick={this.deleteCategoryHandler.bind(this, row)}><span class="fa fa-trash"></span></a>;
-      } },
-    ];
-  }
-
-  onSort(colName, dir) {
-    switch (dir) {
-      case 'asc':
-        this.setState({ brands: this.state.categories.sort((a, b) => a[colName] > b[colName] ? 1 : -1 ) });
-      break;
-
-      case 'desc':
-        this.setState({ brands: this.state.categories.sort((a, b) => b[colName] > a[colName] ? 1 : -1 ) });
-      break;
-
-      default:
-        this.setState({ brands: this.state.categories });
-      break;
-    }
-  }
-
-  onChange(selection) {
-    // this.setState({
-    //   selected: Object.values(selection)[0]
-    // });
-  }
-
-  filterChangeHandler(e) {
-    this.setState({ categories: this.categories.filter((category) => {
-        return category.title.toLowerCase().match(e.target.value.toLowerCase());
-      })
-    });
-  }
-
   selectCategoryHandler(selected) {
     this.setState({
       selected,
@@ -204,18 +118,20 @@ export default class Categories extends React.Component {
     this.state.selected.title = this.refs.categoryTitle.value;
     this.state.selected.description = this.refs.categoryDescription.value;
 
-    add({ ...this.state.selected },
+    add(
+      Object.assign(
+        { ...this.state.selected },
+        { parrentId: this.refs.categoryTree.selected.id }
+      ),
       (r) => {
         this.state.selected.id = r.id;
+        this.state.selected.parrentId = r.parrentId;
         this.setState({
             mode: 'edit',
             selected: this.state.selected,
             categories: this.state.categories.concat(this.state.selected)
           },
-          () => {
-            this.categories = this.state.categories;
-            onSuccess(r);
-          }
+          () => onSuccess(r)
         );
       },
       onFail
@@ -227,6 +143,9 @@ export default class Categories extends React.Component {
 
     this._addCategory(
       (category) => {
+        // Update category tree
+        this._loadCategoryTree();
+
         dispatch('notification:throw', {
           type: 'success',
           title: 'Успех',
@@ -264,10 +183,9 @@ export default class Categories extends React.Component {
     );
   }
 
-  deleteCategoryHandler(category, e) {
+  deleteCategoryHandler(e) {
     e.preventDefault();
 
-    this.categoryToDelete = category;
     dispatch('popup:show', {
       title: 'Подтвердите действие',
       body: this.deleteСategoryDialog
@@ -277,11 +195,14 @@ export default class Categories extends React.Component {
   _deleteCategory() {
     dispatch('popup:close');
 
-    remove(this.categoryToDelete,
+    remove(this.state.selected,
       (r) => {
-        this.setState({
-          categories: this.state.categories.filter(({id}) => id !== this.categoryToDelete.id)
-        });
+        // Update category tree
+        this._loadCategoryTree();
+
+        // Reset selected category
+        this.setState({ selected: JSON.parse(JSON.stringify(this.emptyCategory)) });
+
         dispatch('notification:throw', {
           type: 'warning',
           title: 'Успех',
@@ -306,8 +227,10 @@ export default class Categories extends React.Component {
   resetCategoryHandler() {
     this.setState({
       mode: 'add',
-      selected: JSON.parse(JSON.stringify(this.emptyCategory))
+      selected: JSON.parse(JSON.stringify(this.emptyCategory)),
+      discountType: this.getDiscountTypeLabel('')
     });
+    this.refs.categoryDiscount.disabled = true;
   }
 
   getDiscountTypeLabel(discountType) {
@@ -332,7 +255,15 @@ export default class Categories extends React.Component {
   }
 
   onCategorySelect(category) {
-    console.log(category);
+    if (category.id === "") {
+      return this.resetCategoryHandler();
+    }
+    this.setState({
+      selected: category,
+      discountType: this.getDiscountTypeLabel(category.discountType),
+      mode: 'edit'
+    });
+    this.refs.categoryDiscount.disabled = !category.discountType;
   }
 
   render() {
@@ -347,10 +278,11 @@ export default class Categories extends React.Component {
             </div>
             <div class="box-body">
               <div class="form-group">
-                <label>Родительская категория</label>
+                <label>Дерево категорий</label>
                 <CategoriesTree
+                  ref="categoryTree"
                   className="form-control"
-                  categories={this.categoriesList}
+                  categories={this.state.categories}
                   size="12"
                   categoryIndent="15"
                   onSelect={this.onCategorySelect.bind(this)}
@@ -389,7 +321,7 @@ export default class Categories extends React.Component {
                   checked={this.state.selected.isHidden}
                   onChange={this.isCategoryHiddenChange.bind(this)}
                 />
-                <span class="help-block">Если включено, то все товары данной категории не будут отображены на сайте.</span>
+                <span class="help-block">Если включено, то все товары данной категории и ее подкатегорий не будут отображены на сайте.</span>
               </div>
               <div class="form-group">
                 <label for="categoryDiscount">Скидка</label>
@@ -416,7 +348,9 @@ export default class Categories extends React.Component {
                     </ul>
                   </div>
                 </div>
-                <span class="help-block">Если задана, то скидка распространяется на все товары данной категории.</span>
+                <span class="help-block">Скидка распространяется на все товары и подкатегории данной категории.
+                  Если у подкатегории или товара задана своя скидка, то значение скидки будет взято с конфигурации
+                  подкатегории или отдельного товара.</span>
               </div>
             </div>
             <div class="box-footer">
@@ -426,36 +360,9 @@ export default class Categories extends React.Component {
                   <div class="btn-group">
                     <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateCategoryHandler.bind(this)}> Сохранить</button>
                     <button type="submit" class="btn btn-default fa fa-file-o" onClick={this.resetCategoryHandler.bind(this)}> Новая</button>
+                    <button type="submit" class="btn btn-danger fa fa-trash" onClick={this.deleteCategoryHandler.bind(this)}> Удалить</button>
                   </div>
               }
-            </div>
-          </div>
-
-          <div class="box box-primary">
-            <div class="box-header with-border">
-              <h3 class="box-title">Список категорий</h3>
-            </div>
-            <div class="box-body data-table-container">
-              <div class="row">
-                <div class="col-lg-3 pull-right" style={{ marginBottom: '10px' }}>
-                  <div class="input-group">
-                    <span class="input-group-addon"><i class="fa fa-search"></i></span>
-                    <input type="text" class="form-control" defaultValue="" onChange={this.filterChangeHandler.bind(this)} placeholder="Фильтр" />
-                  </div>
-                </div>
-              </div>
-              <BootstrapTable
-                columns={this.columns}
-                data={this.state.categories}
-                headers={true}
-                resize={true}
-                select="single"
-                selected={this.state.selection}
-                onSort={this.onSort.bind(this)}
-                onChange={this.onChange.bind(this)}
-              >
-                <div class="text-center">Список категорий пуст.</div>
-              </BootstrapTable>
             </div>
           </div>
         </div>
