@@ -274,7 +274,7 @@ export default class Categories extends React.Component {
         <div class="col-xs-12">
           <div class="box box-primary">
             <div class="box-header with-border">
-              <h3 class="box-title">Добавить новую категорию</h3>
+              <h3 class="box-title">Категории</h3>
             </div>
             <div class="box-body">
               <div class="form-group">

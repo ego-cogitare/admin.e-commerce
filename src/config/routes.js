@@ -13,6 +13,10 @@ const routes = {
       component: require('../components/pages/categories/Categories.jsx').default
     },
     {
+      path: 'products(/:id)',
+      component: require('../components/pages/products/Products.jsx').default
+    },
+    {
       path: 'file-manager',
       component: require('../components/pages/fileManager/FileManager.jsx').default
     },

@@ -54,10 +54,13 @@ module.exports = {
         css: [
           './vendors/font-awesome/css/font-awesome.min.css',
           './vendors/bootstrap/dist/css/bootstrap.min.css',
+          './vendors/datatable/media/css/dataTables.bootstrap.min.css',
         ],
         js: [
           './vendors/jquery/jquery.min.js',
           './vendors/bootstrap/dist/js/bootstrap.min.js',
+          './vendors/datatable/media/js/jquery.dataTables.min.js',
+          './vendors/datatable/media/js/dataTables.bootstrap.min.js',
         ]
       }
     })
