@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router';
-
 import PowerTable from '../widgets/PowerTable.jsx';
+import Select2 from '../widgets/Select2.jsx';
 import FileDragAndDrop from 'react-file-drag-and-drop';
 import FileUpload from 'react-fileupload';
 import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
@@ -9,6 +9,7 @@ import DeleteProductDialog from './popups/DeleteProductDialog.jsx';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
 import { list, get, add, update, remove, addPicture } from '../../../actions/Products';
+import { tree as categoryTree } from '../../../actions/Category';
 
 export default class Products extends React.Component {
 
@@ -72,7 +73,9 @@ export default class Products extends React.Component {
           isAvailable: true,
           availableAmount: -1
         },
-      ]
+      ],
+
+      categories: []
     };
   }
 
@@ -82,19 +85,25 @@ export default class Products extends React.Component {
     });
 
     // Get products list
-    // list({ limit: 10, offset: 0 },
-    //   (products) => {
-    //     this.setState({ products });
-    //   },
-    //   (e) => {
-    //     dispatch('notification:throw', {
-    //       type: 'danger',
-    //       title: 'Ошибка',
-    //       message: e.responseJSON.error
-    //     });
-    //   }
-    // );
-    //
+    categoryTree({},
+      (categories) => {
+        let tree = [];
+
+        categories.forEach((category) => {
+          tree = tree.concat(this.categoryBranch(category));
+        });
+
+        this.setState({ categories: tree });
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
+
     // if (this.props.params.id) {
     //   get({ id: this.props.params.id },
     //     (r) => this.setState({ selected: r, mode: 'edit' }),
@@ -107,6 +116,22 @@ export default class Products extends React.Component {
     //     }
     //   );
     // }
+  }
+
+  categoryBranch(category, branch = [], depth = 0) {
+    branch.push(
+      Object.assign(category, { level: depth, text: category.title })
+    );
+
+    if (!category.categories) {
+      return branch;
+    }
+
+    category.categories.forEach(
+      (category) => this.categoryBranch(category, branch, depth + 1)
+    );
+
+    return branch;
   }
 
   /**
@@ -311,6 +336,12 @@ export default class Products extends React.Component {
     });
   }
 
+  updateField(field, value) {
+    console.log('Product update', field, value);
+    this.state.selected[field] = value;
+    this.setState({ selected: this.state.selected });
+  }
+
   render() {
     this.initDialogs();
 
@@ -328,19 +359,30 @@ export default class Products extends React.Component {
                   type="text"
                   class="form-control"
                   id="productTitle"
-                  onChange={this.productTitleChange.bind(this)}
+                  onChange={(e) => this.updateField('title', e.target.value)}
                   value={this.state.selected.title || ''}
                   placeholder="Введите название продукта"
                 />
               </div>
               <div class="form-group">
-                <label for="productDescription">Описание продукта</label>
+                <label for="productDescription">Описание продукта *</label>
                 <textarea
                   class="form-control"
                   id="productDescription"
-                  onChange={this.productDescriptionChange.bind(this)}
+                  onChange={(e) => this.updateField('description', e.target.value)}
                   value={this.state.selected.description || ''}
                   placeholder="Введите описание продукта"
+                />
+              </div>
+              <div class="form-group">
+                <label for="productCategories">Категории продукта *</label>
+                <Select2
+                  style={{ width: '100%' }}
+                  nestedOffset="30"
+                  placeholder="Выберите одну или несколько категорий"
+                  onChange={(categories) => this.updateField('categories', categories)}
+                  data={this.state.categories}
+                  value={['59f6fd721d41c805753670a2', '59f4e5bf1d41c806e5144ef3']}
                 />
               </div>
               <div class="form-group">
