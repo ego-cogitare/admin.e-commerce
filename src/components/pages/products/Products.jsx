@@ -15,6 +15,22 @@ export default class Products extends React.Component {
   constructor(props) {
     super(props);
 
+    this.emptyProduct = {
+      id: '',
+      title: '',
+      description: '',
+      categories: [],
+      pictures: [],
+      pictureId: '',
+      relatedProducts: [],
+      isNew: true,
+      isAction: false,
+      discount: 0,
+      discountType: '',
+      isAvailable: true,
+      availableAmount: -1
+    };
+
     this.state = {
       mode: this.props.params.id ? 'edit' : 'add',
 
@@ -22,21 +38,7 @@ export default class Products extends React.Component {
       path: config.staticFiles,
 
       // Current selected brand
-      selected: {
-        id: '',
-        title: '',
-        categories: [],
-        pictures: [],
-        pictureId: '',
-        description: '',
-        relatedProducts: [],
-        isNew: true,
-        isAction: false,
-        discount: 0,
-        discountType: '',
-        isAvailable: true,
-        availableAmount: -1
-      },
+      selected: JSON.parse(JSON.stringify(this.emptyProduct)),
 
       // Brands list
       products: [
@@ -79,11 +81,10 @@ export default class Products extends React.Component {
       pageTitle: 'Управление продуктами'
     });
 
-    // Get brands list
+    // Get products list
     // list({ limit: 10, offset: 0 },
     //   (products) => {
     //     this.setState({ products });
-    //     // this.brands = brands;
     //   },
     //   (e) => {
     //     dispatch('notification:throw', {
@@ -93,19 +94,19 @@ export default class Products extends React.Component {
     //     });
     //   }
     // );
-
-    if (this.props.params.id) {
-      get({ id: this.props.params.id },
-        (r) => this.setState({ selected: r, mode: 'edit' }),
-        (e) => {
-          dispatch('notification:throw', {
-            type: 'danger',
-            title: 'Ошибка',
-            message: e.responseJSON.error
-          });
-        }
-      );
-    }
+    //
+    // if (this.props.params.id) {
+    //   get({ id: this.props.params.id },
+    //     (r) => this.setState({ selected: r, mode: 'edit' }),
+    //     (e) => {
+    //       dispatch('notification:throw', {
+    //         type: 'danger',
+    //         title: 'Ошибка',
+    //         message: e.responseJSON.error
+    //       });
+    //     }
+    //   );
+    // }
   }
 
   /**
@@ -115,52 +116,65 @@ export default class Products extends React.Component {
     this.uploadFileDialog =
       <UploadFileDialog
         path={this.state.path}
-        onUploadSuccess={(file) => this.addBrandPictureHandler(this.state.selected, file)}
-        onUploadFail={(file) => console.log('Error', file)}
+        onUploadSuccess={(file) => this.addProductPictureHandler(this.state.selected, file)}
+        onUploadFail={(file) => {
+          dispatch('notification:throw', {
+            type: 'danger',
+            title: 'Ошибка',
+            message: JSON.stringify(file)
+          });
+        }}
       />;
 
-    this.deleteProductDialog = <DeleteProductDialog onDeleteClick={this._deleteBrand.bind(this)} />;
+    this.deleteProductDialog = <DeleteProductDialog onDeleteClick={this._deleteProduct.bind(this)} />;
   }
 
   get columns() {
     return [
-      // { name: 'picture', width: 5, display: 'Лого', sort: false, renderer: (row) => {
-      //   if (!row.pictureId) {
-      //     return null;
-      //   }
-      //   return (
-      //     <img
-      //       width="30"
-      //       height="30"
-      //       src={buildUrl(row.pictures.filter(({id}) => id===row.pictureId)[0])}
-      //       style={{ objectFit: 'cover' }}
-      //     />
-      //   );
-      // } },
       { name: 'id', display: 'ID', sort: false },
+      { name: 'picture', width: 5, display: 'Фото', sort: false, renderer: (row) => {
+        if (!row.pictureId) { return null; }
+        return (
+          <img
+            width="30"
+            height="30"
+            src={buildUrl(row.pictures.filter(({ id }) => id === row.pictureId)[0])}
+            style={{ objectFit: 'cover' }}
+          />
+        );
+      } },
       { name: 'title', display: 'Продукт' },
-      { name: 'edit', display: 'Править', width: 10, sort: false, renderer: (row) => {
-        return <Link to={"products/" + row.id} onClick={this.selectBrandHandler.bind(this, row)}><span class="fa fa-edit"></span></Link>;
-      } },
-      { name: 'remove', display: 'Удалить', sort: false, width: 10, renderer: (row) => {
-        return <a href="#" onClick={this.deleteBrandHandler.bind(this, row)}><span class="fa fa-trash"></span></a>;
-      } },
+      { name: 'edit', display: 'Править', width: 10, sort: false, renderer: (row) => (
+          <Link to={"products/" + row.id}
+            onClick={this.selectProductHandler.bind(this, row)}>
+            <span class="fa fa-edit"></span>
+          </Link>
+        )
+      },
+      { name: 'remove', display: 'Удалить', sort: false, width: 10, renderer: (row) => (
+          <a href="#"
+            onClick={this.deleteProductHandler.bind(this, row)}>
+            <span class="fa fa-trash"></span>
+          </a>
+        )
+      },
     ];
   }
 
-  filterChangeHandler(e) {
-    this.setState({ brands: this.brands.filter((brand) => {
-        return brand.title.toLowerCase().match(e.target.value.toLowerCase());
-      })
+  selectProductHandler(product) {
+    this.setState({
+      selected: product,
+      mode: 'edit'
     });
   }
 
-  selectBrandHandler(brand) {
-    this.setState({ selected: brand, mode: 'edit' });
+  productTitleChange(e) {
+    this.state.selected.title = e.target.value;
+    this.setState({ selected: this.state.selected });
   }
 
-  brandTitleChange(e) {
-    this.state.selected.title = e.target.value;
+  productDescriptionChange(e) {
+    this.state.selected.description = e.target.value;
     this.setState({ selected: this.state.selected });
   }
 
@@ -171,36 +185,31 @@ export default class Products extends React.Component {
     });
   }
 
-  _addBrand(onSuccess = ()=>null, onFail = ()=>null) {
-    this.state.selected.title = this.refs.brandTitle.value;
-
+  _addProduct(onSuccess = ()=>null, onFail = ()=>null) {
     add({ ...this.state.selected },
       (r) => {
         this.state.selected.id = r.id;
         this.setState({
             mode: 'edit',
             selected: this.state.selected,
-            brands: this.state.brands.concat(this.state.selected)
+            brands: this.state.products.concat(this.state.selected)
           },
-          () => {
-            this.brands = this.brands.concat(this.state.selected);
-            onSuccess(r);
-          }
+          () => onSuccess(r)
         );
       },
       onFail
     );
   }
 
-  addBrandHandler(e) {
+  addProductHandler(e) {
     e.preventDefault();
 
-    this._addBrand(
+    this._addProduct(
       (brand) => {
         dispatch('notification:throw', {
           type: 'success',
           title: 'Успех',
-          message: 'Брэнд успешно добавлен'
+          message: 'Продукт успешно добавлен'
         });
       },
       (e) => {
@@ -213,7 +222,7 @@ export default class Products extends React.Component {
     );
   }
 
-  updateBrandHandler(e) {
+  updateProductHandler(e) {
     e.preventDefault();
 
     update({ ...this.state.selected },
@@ -221,7 +230,7 @@ export default class Products extends React.Component {
         dispatch('notification:throw', {
           type: 'success',
           title: 'Успех',
-          message: 'Брэнд успешно обновлен'
+          message: 'Продукт успешно обновлен'
         });
       },
       (e) => {
@@ -234,14 +243,14 @@ export default class Products extends React.Component {
     );
   }
 
-  addBrandPictureHandler(brand, picture) {
-    addPicture({ brand, picture },
+  addBrandPictureHandler(product, picture) {
+    addPicture({ product, picture },
       (r) => {
         this.setState({ selected: r, mode: 'edit' }, () => {
           dispatch('notification:throw', {
             type: 'success',
             title: 'Успех',
-            message: 'Изображение брэнда добавлено'
+            message: 'Изображение продукта добавлено'
           });
         });
       },
@@ -255,33 +264,34 @@ export default class Products extends React.Component {
     );
   }
 
-  setBrandPictureHandler({ id }, e) {
+  setProductPictureHandler({ id }, e) {
     this.state.selected.pictureId = id;
-    this.setState({ selected: this.state.selected });
-  }
-
-  deleteBrandHandler(brand, e) {
-    e.preventDefault();
-
-    this.brandToDelete = brand;
-    dispatch('popup:show', {
-      title: 'Подтвердите действие',
-      body: this.deleteBrandDialog
+    this.setState({
+      selected: this.state.selected
     });
   }
 
-  _deleteBrand() {
+  deleteProductHandler(product, e) {
+    e.preventDefault();
+
+    dispatch('popup:show', {
+      title: 'Подтвердите действие',
+      body: this.deleteProductDialog
+    });
+  }
+
+  _deleteProduct() {
     dispatch('popup:close');
 
-    remove(this.brandToDelete,
+    remove({ ...this.state.selected },
       (r) => {
         this.setState({
-          brands: this.state.brands.filter(({id}) => id !== this.brandToDelete.id)
+          products: this.state.products.filter(({ id }) => id !== this.state.selected.id)
         });
         dispatch('notification:throw', {
           type: 'warning',
           title: 'Успех',
-          message: 'Брэнд успешно удален'
+          message: 'Продукт успешно удален'
         });
       },
       (e) => {
@@ -294,15 +304,10 @@ export default class Products extends React.Component {
     );
   }
 
-  resetBrandHandler() {
+  resetProductHandler() {
     this.setState({
       mode: 'add',
-      selected: {
-        id: null,
-        title: '',
-        pictureId: null,
-        pictures: []
-      }
+      selected: JSON.parse(JSON.stringify(this.emptyProduct))
     });
   }
 
@@ -314,30 +319,39 @@ export default class Products extends React.Component {
         <div class="col-xs-12">
           <div class="box box-primary">
             <div class="box-header with-border">
-              <h3 class="box-title">Добавить новый брэнд</h3>
+              <h3 class="box-title">Продукт</h3>
             </div>
             <div class="box-body">
               <div class="form-group">
-                <label for="brandTitle">Название брэнда *</label>
+                <label for="brandTitle">Название продукта *</label>
                 <input
                   type="text"
-                  ref="brandTitle"
                   class="form-control"
-                  id="brandTitle"
-                  onChange={this.brandTitleChange.bind(this)}
+                  id="productTitle"
+                  onChange={this.productTitleChange.bind(this)}
                   value={this.state.selected.title || ''}
-                  placeholder="Введите название брэнда"
+                  placeholder="Введите название продукта"
                 />
               </div>
               <div class="form-group">
-                <label>Изображения брэнда</label>
+                <label for="productDescription">Описание продукта</label>
+                <textarea
+                  class="form-control"
+                  id="productDescription"
+                  onChange={this.productDescriptionChange.bind(this)}
+                  value={this.state.selected.description || ''}
+                  placeholder="Введите описание продукта"
+                />
+              </div>
+              <div class="form-group">
+                <label>Изображения продукта</label>
                 <div class="brand-pictures">
                   {
                     (this.state.selected.pictures || []).map((picture) => {
                       return (
                         <div
                           key={picture.id}
-                          onClick={this.setBrandPictureHandler.bind(this, picture)}
+                          onClick={this.setProductPictureHandler.bind(this, picture)}
                           class={"brand-picture".concat(this.state.selected.pictureId === picture.id ? ' selected' : '')}
                         >
                           <img src={`${buildUrl(picture)}`} />
@@ -352,10 +366,10 @@ export default class Products extends React.Component {
             <div class="box-footer">
               {
                 (this.state.mode === 'add') ?
-                  <button type="submit" class="btn btn-primary fa fa-check" onClick={this.addBrandHandler.bind(this)}> Добавить</button> :
+                  <button type="submit" class="btn btn-primary fa fa-check" onClick={this.addProductHandler.bind(this)}> Добавить</button> :
                   <div class="btn-group">
-                    <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateBrandHandler.bind(this)}> Сохранить</button>
-                    <button type="submit" class="btn btn-default fa fa-file-o" onClick={this.resetBrandHandler.bind(this)}> Новый</button>
+                    <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateProductHandler.bind(this)}> Сохранить</button>
+                    <button type="submit" class="btn btn-default fa fa-file-o" onClick={this.resetProductHandler.bind(this)}> Новый</button>
                   </div>
               }
             </div>
