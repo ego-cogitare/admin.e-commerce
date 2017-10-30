@@ -9,13 +9,20 @@ export default class PowerTable extends React.Component {
       data: this.props.data,
       columns: this.props.columns
     };
+
+    // Disable datatable initialization warnings
+    $.fn.dataTable.ext.errMode = 'none';
   }
 
   componentWillReceiveProps({ data }) {
-    this.setState({ data });
+    this.setState({ data }, () => this._initTable());
   }
 
   componentDidMount() {
+    this._initTable();
+  }
+
+  _initTable() {
     let sortables  = this.state.columns.map(({ sort }, key) => ({
       'bSortable': (sort === false) ? false : true,
       'aTargets': [ key ]

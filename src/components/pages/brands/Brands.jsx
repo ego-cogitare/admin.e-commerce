@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import BootstrapTable from 'reactjs-bootstrap-table';
+import PowerTable from '../widgets/PowerTable.jsx';
 import FileDragAndDrop from 'react-file-drag-and-drop';
 import FileUpload from 'react-fileupload';
 import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
@@ -346,6 +347,7 @@ export default class Brands extends React.Component {
               <h3 class="box-title">Список брэндов</h3>
             </div>
             <div class="box-body data-table-container">
+              {/*
               <div class="row">
                 <div class="col-lg-3 pull-right" style={{ marginBottom: '10px' }}>
                   <div class="input-group">
@@ -354,6 +356,20 @@ export default class Brands extends React.Component {
                   </div>
                 </div>
               </div>
+              */}
+              <div class="col-sm-12">
+                <div class="row">
+                    <PowerTable
+                      header={true}
+                      footer={true}
+                      columns={this.columns}
+                      data={this.state.brands}
+                    >
+                    Список продуктов пуст</PowerTable>
+                </div>
+              </div>
+
+{/*
               <BootstrapTable
                 columns={this.columns}
                 data={this.state.brands}
@@ -365,7 +381,7 @@ export default class Brands extends React.Component {
                 onChange={this.onChange.bind(this)}
               >
                 <div class="text-center">Список брэндов пуст.</div>
-              </BootstrapTable>
+              </BootstrapTable>*/}
             </div>
           </div>
         </div>
