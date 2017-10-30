@@ -15,6 +15,13 @@ export default class Brands extends React.Component {
   constructor(props) {
     super(props);
 
+    this.emptyBrand = {
+      id: null,
+      title: '',
+      pictureId: null,
+      pictures: []
+    };
+
     this.state = {
       mode: this.props.params.id ? 'edit' : 'add',
 
@@ -22,12 +29,7 @@ export default class Brands extends React.Component {
       path: config.staticFiles,
 
       // Current selected brand
-      selected: {
-        id: null,
-        title: '',
-        pictureId: null,
-        pictures: []
-      },
+      selected: JSON.parse(JSON.stringify(this.emptyBrand)),
 
       // Brands list
       brands: []
@@ -105,28 +107,6 @@ export default class Brands extends React.Component {
         return <a href="#" onClick={this.deleteBrandHandler.bind(this, row)}><span class="fa fa-trash"></span></a>;
       } },
     ];
-  }
-
-  onSort(colName, dir) {
-    switch (dir) {
-      case 'asc':
-        this.setState({ brands: this.state.brands.sort((a, b) => a[colName] > b[colName] ? 1 : -1 ) });
-      break;
-
-      case 'desc':
-        this.setState({ brands: this.state.brands.sort((a, b) => b[colName] > a[colName] ? 1 : -1 ) });
-      break;
-
-      default:
-        this.setState({ brands: this.state.brands });
-      break;
-    }
-  }
-
-  onChange(selection) {
-    // this.setState({
-    //   selected: Object.values(selection)[0]
-    // });
   }
 
   filterChangeHandler(e) {
@@ -257,7 +237,9 @@ export default class Brands extends React.Component {
     remove(this.brandToDelete,
       (r) => {
         this.setState({
-          brands: this.state.brands.filter(({id}) => id !== this.brandToDelete.id)
+          mode: 'add',
+          brands: this.state.brands.filter(({id}) => id !== this.brandToDelete.id),
+          selected: JSON.parse(JSON.stringify(this.emptyBrand))
         });
         dispatch('notification:throw', {
           type: 'warning',
@@ -278,12 +260,7 @@ export default class Brands extends React.Component {
   resetBrandHandler() {
     this.setState({
       mode: 'add',
-      selected: {
-        id: null,
-        title: '',
-        pictureId: null,
-        pictures: []
-      }
+      selected: JSON.parse(JSON.stringify(this.emptyBrand))
     });
   }
 
@@ -347,16 +324,6 @@ export default class Brands extends React.Component {
               <h3 class="box-title">Список брэндов</h3>
             </div>
             <div class="box-body data-table-container">
-              {/*
-              <div class="row">
-                <div class="col-lg-3 pull-right" style={{ marginBottom: '10px' }}>
-                  <div class="input-group">
-                    <span class="input-group-addon"><i class="fa fa-search"></i></span>
-                    <input type="text" class="form-control" defaultValue="" onChange={this.filterChangeHandler.bind(this)} placeholder="Фильтр" />
-                  </div>
-                </div>
-              </div>
-              */}
               <div class="col-sm-12">
                 <div class="row">
                     <PowerTable
@@ -368,20 +335,6 @@ export default class Brands extends React.Component {
                     Список продуктов пуст</PowerTable>
                 </div>
               </div>
-
-{/*
-              <BootstrapTable
-                columns={this.columns}
-                data={this.state.brands}
-                headers={true}
-                resize={true}
-                select="single"
-                selected={this.state.selection}
-                onSort={this.onSort.bind(this)}
-                onChange={this.onChange.bind(this)}
-              >
-                <div class="text-center">Список брэндов пуст.</div>
-              </BootstrapTable>*/}
             </div>
           </div>
         </div>
