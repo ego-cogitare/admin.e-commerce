@@ -1,7 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router';
+import Settings from '../../../core/helpers/Settings';
 import PowerTable from '../widgets/PowerTable.jsx';
 import Select2 from '../widgets/Select2.jsx';
+import Discount from '../widgets/Discount.jsx';
+import { Checkbox } from 'react-icheck';
 import FileDragAndDrop from 'react-file-drag-and-drop';
 import FileUpload from 'react-fileupload';
 import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
@@ -24,8 +27,8 @@ export default class Products extends React.Component {
       pictures: [],
       pictureId: '',
       relatedProducts: [],
-      isNew: true,
-      isAction: false,
+      isNovelty: false,
+      isAuction: false,
       discount: 0,
       discountType: '',
       isAvailable: true,
@@ -342,6 +345,18 @@ export default class Products extends React.Component {
     this.setState({ selected: this.state.selected });
   }
 
+  isProductAuctionChange() {
+
+  }
+
+  isProductNoveltyChange() {
+
+  }
+
+  isProductAvailableChange() {
+
+  }
+
   render() {
     this.initDialogs();
 
@@ -386,7 +401,7 @@ export default class Products extends React.Component {
                 />
               </div>
               <div class="form-group">
-                <label>Изображения продукта</label>
+                <label>Изображения продукта *</label>
                 <div class="brand-pictures">
                   {
                     (this.state.selected.pictures || []).map((picture) => {
@@ -402,6 +417,126 @@ export default class Products extends React.Component {
                     })
                   }
                   <div class="brand-picture empty" onClick={this._uploadFiles.bind(this)}>+</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="isNovelty">Новинка</label>
+                <br/>
+                <Checkbox
+                  id="isNovelty"
+                  checkboxClass="icheckbox_square-blue"
+                  increaseArea="20%"
+                  checked={this.state.selected.isNovelty}
+                  onChange={(e) => this.updateField('isNovelty', !e.target.checked)}
+                  />
+              </div>
+              <div class="form-group">
+                <label for="isProductAuction">Продукт аукционный</label>
+                <br/>
+                <Checkbox
+                  id="isProductAuction"
+                  checkboxClass="icheckbox_square-blue"
+                  increaseArea="20%"
+                  checked={this.state.selected.isAuction}
+                  onChange={(e) => this.updateField('isAuction', !e.target.checked)}
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="categoryDiscount">Скидка</label>
+                <div class="input-group">
+                  <Discount
+                    id="categoryDiscount"
+                    className="form-control"
+                    discountLabels={[
+                      { key: '',      value: 'Нет' },
+                      { key: '%',     value: '%' },
+                      { key: 'const', value: Settings.get('currencyCode') }
+                    ]}
+                    defaultValue={
+                      { key: '%', value: 5.1 }
+                    }
+                    onChange={(discount) => console.log(discount)}
+                  />
+                  {/*
+                  <input
+                    type="text"
+                    ref="categoryDiscount"
+                    class="form-control"
+                    id="categoryDiscount"
+                    placeholder="0"
+                    onChange={this.categoryDiscountChange.bind(this)}
+                    value={this.state.selected.discount || ''}
+                    style={{ width: 60 }}
+                    disabled
+                  />
+                  <div class="input-group-btn pull-left">
+                    <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">{ this.state.discountType }
+                      <span class="fa fa-caret-down"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, '')}>Нет</a></li>
+                      <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, '%')}>%</a></li>
+                      <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, 'const')}>{ Settings.get('currencyCode') }</a></li>
+                    </ul>
+                  </div>
+                  */}
+                </div>
+                <span class="help-block">.</span>
+              </div>
+
+              <div class="form-group">
+                <label for="isAvailable">Есть в наличии</label>
+                <br/>
+                <Checkbox
+                  id="isAvailable"
+                  checkboxClass="icheckbox_square-blue"
+                  increaseArea="20%"
+                  checked={this.state.selected.isAvailable}
+                  onChange={(e) => this.updateField('isAvailable', !e.target.checked)}
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="isAvailable">Связанные продукты</label>
+                <div class="related-products">
+                  <div class="related media">
+                    <div class="media-left">
+                      <a href="#">
+                        <img width="65" height="65" src="http://api.e-commerce.loc/uploads/2017-08-19 19.43.30.1.jpg" alt="Material Dashboard Pro" class="media-object" />
+                      </a>
+                    </div>
+                    <div class="media-body">
+                      <div class="clearfix">
+                        <p class="pull-right">
+                          <a href="#" class="btn btn-info btn-sm fa fa-trash"></a>
+                        </p>
+                        <h4>Material Dashboard Pro ─ $59</h4>
+                        <p>Angular 2 Premium Material Bootstrap Admin with a fresh, new design inspired by Google's Material Design</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="related media">
+                    <div class="media-left">
+                      <a href="#">
+                        <img width="65" height="65" src="http://api.e-commerce.loc/uploads/2017-08-19 19.43.30.1.jpg" alt="Material Dashboard Pro" class="media-object" />
+                      </a>
+                    </div>
+                    <div class="media-body">
+                      <div class="clearfix">
+                        <p class="pull-right">
+                          <a href="#" class="btn btn-info btn-sm fa fa-trash"></a>
+                        </p>
+                        <h4>Material Dashboard Pro ─ $59</h4>
+                        <p>Angular 2 Premium Material Bootstrap Admin with a fresh, new design inspired by Google's Material Design</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="media brand-pictures">
+                    <div class="brand-picture empty" onClick={this._uploadFiles.bind(this)} style={{ width:65, height:65, lineHeight: '63px' }}>+</div>
+                  </div>
+
                 </div>
               </div>
             </div>
