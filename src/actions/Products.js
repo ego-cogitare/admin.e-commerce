@@ -5,10 +5,6 @@ export function list(params, success, error) {
     request(`/product/list`, params, 'get', success, error);
 };
 
-export function add(data, success, error) {
-    request(`/product/add`, data, 'post', success, error);
-};
-
 export function update(data, success, error) {
     request(`/product/update/${data.id}`, data, 'post', success, error);
 };
@@ -23,4 +19,8 @@ export function addPicture(data, success, error) {
 
 export function get({ id }, success, error) {
     request(`/product/get/${id}`, {}, 'get', success, error);
+};
+
+export function bootstrap(success, error) {
+    request(`/product/bootstrap`, {}, 'get', success, error);
 };

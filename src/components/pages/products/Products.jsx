@@ -11,7 +11,7 @@ import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
 import DeleteProductDialog from './popups/DeleteProductDialog.jsx';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
-import { list, get, add, update, remove, addPicture } from '../../../actions/Products';
+import { bootstrap, list, get, update, remove, addPicture } from '../../../actions/Products';
 import { tree as categoryTree } from '../../../actions/Category';
 
 export default class Products extends React.Component {
@@ -43,8 +43,6 @@ export default class Products extends React.Component {
       isAvailable: true,
       availableAmount: -1
     };
-
-    // this.product = JSON.parse(JSON.stringify(this.emptyProduct));
 
     this.state = {
       mode: this.props.params.id ? 'edit' : 'add',
@@ -98,16 +96,31 @@ export default class Products extends React.Component {
       pageTitle: 'Управление продуктами'
     });
 
-    // Get products list
-    categoryTree({},
-      (categories) => {
-        let tree = [];
-
-        categories.forEach((category) => {
-          tree = tree.concat(this.categoryBranch(category));
+    // Get bootstrap product
+    bootstrap(
+      (bootstrap) => {
+        this.setState({
+          selected: bootstrap
+        },
+        () => {
+          // Get categories list
+          categoryTree({},
+            (categories) => {
+              let tree = [];
+              categories.forEach((category) => {
+                tree = tree.concat(this.categoryBranch(category));
+              });
+              this.setState({ categories: tree });
+            },
+            (e) => {
+              dispatch('notification:throw', {
+                type: 'danger',
+                title: 'Ошибка',
+                message: e.responseJSON.error
+              });
+            }
+          );
         });
-
-        this.setState({ categories: tree });
       },
       (e) => {
         dispatch('notification:throw', {
@@ -224,45 +237,6 @@ export default class Products extends React.Component {
     });
   }
 
-  _addProduct(onSuccess = ()=>null, onFail = ()=>null) {
-    console.log('Save product', this.state.selected);
-
-    add({ ...this.state.selected },
-      (r) => {
-        this.state.selected.id = r.id;
-        this.setState({
-            mode: 'edit',
-            selected: this.state.selected,
-            brands: this.state.products.concat(this.state.selected)
-          },
-          () => onSuccess(r)
-        );
-      },
-      onFail
-    );
-  }
-
-  addProductHandler(e) {
-    e.preventDefault();
-
-    this._addProduct(
-      (brand) => {
-        dispatch('notification:throw', {
-          type: 'success',
-          title: 'Успех',
-          message: 'Продукт успешно добавлен'
-        });
-      },
-      (e) => {
-        dispatch('notification:throw', {
-          type: 'danger',
-          title: 'Ошибка',
-          message: e.responseJSON.error
-        });
-      }
-    );
-  }
-
   updateProductHandler(e) {
     e.preventDefault();
 
@@ -271,7 +245,7 @@ export default class Products extends React.Component {
         dispatch('notification:throw', {
           type: 'success',
           title: 'Успех',
-          message: 'Продукт успешно обновлен'
+          message: 'Продукт успешно сохранён'
         });
       },
       (e) => {
@@ -524,7 +498,7 @@ export default class Products extends React.Component {
             <div class="box-footer">
               {
                 (this.state.mode === 'add') ?
-                  <button type="submit" class="btn btn-primary fa fa-check" onClick={this.addProductHandler.bind(this)}> Добавить</button> :
+                  <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateProductHandler.bind(this)}> Добавить</button> :
                   <div class="btn-group">
                     <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateProductHandler.bind(this)}> Сохранить</button>
                     <button type="submit" class="btn btn-default fa fa-file-o" onClick={this.resetProductHandler.bind(this)}> Новый</button>
