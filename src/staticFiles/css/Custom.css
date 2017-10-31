@@ -4,7 +4,7 @@
   font-weight: bold;
   font-size: 48px;
   color: #aaa;
-  border: 2px dashed;
+  border: 2px solid;
   display: inline-block;
   margin-right: 5px;
   box-sizing: border-box;
@@ -19,6 +19,10 @@
   height: 100%;
   object-fit: cover;
   vertical-align: top;
+}
+
+.brand-pictures .brand-picture.empty {
+  border-style: dashed;
 }
 
 .brand-pictures .brand-picture.empty:hover {

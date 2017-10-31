@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import BootstrapTable from 'reactjs-bootstrap-table';
 import PowerTable from '../widgets/PowerTable.jsx';
+import PicturesList from '../widgets/PicturesList.jsx';
 import FileDragAndDrop from 'react-file-drag-and-drop';
 import FileUpload from 'react-fileupload';
 import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
@@ -289,22 +290,16 @@ export default class Brands extends React.Component {
               </div>
               <div class="form-group">
                 <label>Изображения брэнда</label>
-                <div class="brand-pictures">
-                  {
-                    (this.state.selected.pictures || []).map((picture) => {
-                      return (
-                        <div
-                          key={picture.id}
-                          onClick={this.setBrandPictureHandler.bind(this, picture)}
-                          class={"brand-picture".concat(this.state.selected.pictureId === picture.id ? ' selected' : '')}
-                        >
-                          <img src={`${buildUrl(picture)}`} />
-                        </div>
-                      );
-                    })
-                  }
-                  <div class="brand-picture empty" onClick={this._uploadFiles.bind(this)}>+</div>
-                </div>
+                <PicturesList
+                  className="brand-pictures"
+                  pictureClassName="brand-picture"
+                  pictureActiveClassName="selected"
+                  pictures={this.state.selected.pictures}
+                  activePictureId={this.state.selected.pictureId}
+                  onSelect={this.setBrandPictureHandler.bind(this)}
+                  addPictureControll={true}
+                  addPictureCallback={this._uploadFiles.bind(this)}
+                />
               </div>
             </div>
             <div class="box-footer">

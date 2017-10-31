@@ -24,9 +24,18 @@ export default class Products extends React.Component {
       title: '',
       description: '',
       categories: [],
+      // categories: ['59f6fd721d41c805753670a2', '59f4e5bf1d41c806e5144ef3'],
       pictures: [],
       pictureId: '',
-      relatedProducts: [],
+      // relatedProducts: [],
+      relatedProducts: [
+        {
+          id: '59f6fd721d41c805753670a2',
+        },
+        {
+          id: '59f4e5bf1d41c806e5144ef3',
+        }
+      ],
       isNovelty: false,
       isAuction: false,
       discount: 0,
@@ -34,6 +43,8 @@ export default class Products extends React.Component {
       isAvailable: true,
       availableAmount: -1
     };
+
+    // this.product = JSON.parse(JSON.stringify(this.emptyProduct));
 
     this.state = {
       mode: this.props.params.id ? 'edit' : 'add',
@@ -214,6 +225,8 @@ export default class Products extends React.Component {
   }
 
   _addProduct(onSuccess = ()=>null, onFail = ()=>null) {
+    console.log('Save product', this.state.selected);
+
     add({ ...this.state.selected },
       (r) => {
         this.state.selected.id = r.id;
@@ -302,6 +315,7 @@ export default class Products extends React.Component {
   deleteProductHandler(product, e) {
     e.preventDefault();
 
+    this.productToDelete = product;
     dispatch('popup:show', {
       title: 'Подтвердите действие',
       body: this.deleteProductDialog
@@ -311,10 +325,10 @@ export default class Products extends React.Component {
   _deleteProduct() {
     dispatch('popup:close');
 
-    remove({ ...this.state.selected },
+    remove(Object.assign({ ...this.state.selected }, { id: this.productToDelete.id }),
       (r) => {
         this.setState({
-          products: this.state.products.filter(({ id }) => id !== this.state.selected.id)
+          products: this.state.products.filter(({ id }) => id !== this.productToDelete.id)
         });
         dispatch('notification:throw', {
           type: 'warning',
@@ -340,21 +354,18 @@ export default class Products extends React.Component {
   }
 
   updateField(field, value) {
-    console.log('Product update', field, value);
     this.state.selected[field] = value;
     this.setState({ selected: this.state.selected });
   }
 
-  isProductAuctionChange() {
+  removeRelatedProduct(product, e) {
+    e.preventDefault();
 
-  }
+    const selected = this.state.selected;
+    selected.relatedProducts =
+      selected.relatedProducts.filter(({ id }) => id !== product.id) ;
 
-  isProductNoveltyChange() {
-
-  }
-
-  isProductAvailableChange() {
-
+    this.setState({ selected });
   }
 
   render() {
@@ -397,7 +408,7 @@ export default class Products extends React.Component {
                   placeholder="Выберите одну или несколько категорий"
                   onChange={(categories) => this.updateField('categories', categories)}
                   data={this.state.categories}
-                  value={['59f6fd721d41c805753670a2', '59f4e5bf1d41c806e5144ef3']}
+                  value={this.state.selected.categories}
                 />
               </div>
               <div class="form-group">
@@ -454,35 +465,17 @@ export default class Products extends React.Component {
                       { key: 'const', value: Settings.get('currencyCode') }
                     ]}
                     defaultValue={
-                      { key: '%', value: 5.1 }
+                      {
+                        key: this.state.selected.discountType,
+                        value: this.state.selected.discount
+                      }
                     }
-                    onChange={(discount) => console.log(discount)}
+                    onChange={({ discountType, discountValue: value }) => {
+                      this.updateField('discount', value);
+                      this.updateField('discountType', discountType);
+                    }}
                   />
-                  {/*
-                  <input
-                    type="text"
-                    ref="categoryDiscount"
-                    class="form-control"
-                    id="categoryDiscount"
-                    placeholder="0"
-                    onChange={this.categoryDiscountChange.bind(this)}
-                    value={this.state.selected.discount || ''}
-                    style={{ width: 60 }}
-                    disabled
-                  />
-                  <div class="input-group-btn pull-left">
-                    <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">{ this.state.discountType }
-                      <span class="fa fa-caret-down"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                      <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, '')}>Нет</a></li>
-                      <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, '%')}>%</a></li>
-                      <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, 'const')}>{ Settings.get('currencyCode') }</a></li>
-                    </ul>
-                  </div>
-                  */}
                 </div>
-                <span class="help-block">.</span>
               </div>
 
               <div class="form-group">
@@ -500,43 +493,31 @@ export default class Products extends React.Component {
               <div class="form-group">
                 <label for="isAvailable">Связанные продукты</label>
                 <div class="related-products">
-                  <div class="related media">
-                    <div class="media-left">
-                      <a href="#">
-                        <img width="65" height="65" src="http://api.e-commerce.loc/uploads/2017-08-19 19.43.30.1.jpg" alt="Material Dashboard Pro" class="media-object" />
-                      </a>
-                    </div>
-                    <div class="media-body">
-                      <div class="clearfix">
-                        <p class="pull-right">
-                          <a href="#" class="btn btn-info btn-sm fa fa-trash"></a>
-                        </p>
-                        <h4>Material Dashboard Pro ─ $59</h4>
-                        <p>Angular 2 Premium Material Bootstrap Admin with a fresh, new design inspired by Google's Material Design</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="related media">
-                    <div class="media-left">
-                      <a href="#">
-                        <img width="65" height="65" src="http://api.e-commerce.loc/uploads/2017-08-19 19.43.30.1.jpg" alt="Material Dashboard Pro" class="media-object" />
-                      </a>
-                    </div>
-                    <div class="media-body">
-                      <div class="clearfix">
-                        <p class="pull-right">
-                          <a href="#" class="btn btn-info btn-sm fa fa-trash"></a>
-                        </p>
-                        <h4>Material Dashboard Pro ─ $59</h4>
-                        <p>Angular 2 Premium Material Bootstrap Admin with a fresh, new design inspired by Google's Material Design</p>
-                      </div>
-                    </div>
-                  </div>
-
+                  {
+                    this.state.selected.relatedProducts.map((relatedProduct) => {
+                      return (
+                        <div class="related media" key={relatedProduct.id}>
+                          <div class="media-left">
+                            <a href="#">
+                              <img width="65" height="65" src="http://api.e-commerce.loc/uploads/2017-08-19 19.43.30.1.jpg" alt="" />
+                            </a>
+                          </div>
+                          <div class="media-body">
+                            <div class="clearfix">
+                              <p class="pull-right">
+                                <a href="#" onClick={this.removeRelatedProduct.bind(this, relatedProduct)} class="btn btn-info btn-sm fa fa-trash"></a>
+                              </p>
+                              <h4>Material Dashboard Pro ─ $59</h4>
+                              <p>Angular 2 Premium Material Bootstrap Admin with a fresh, new design inspired by Google's Material Design</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  }
                   <div class="media brand-pictures">
                     <div class="brand-picture empty" onClick={this._uploadFiles.bind(this)} style={{ width:65, height:65, lineHeight: '63px' }}>+</div>
                   </div>
-
                 </div>
               </div>
             </div>
