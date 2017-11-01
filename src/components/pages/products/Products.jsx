@@ -1,4 +1,5 @@
 import React from 'react';
+import { browserHistory } from "react-router";
 import { Link } from 'react-router';
 import Settings from '../../../core/helpers/Settings';
 import PowerTable from '../widgets/PowerTable.jsx';
@@ -24,18 +25,9 @@ export default class Products extends React.Component {
       title: '',
       description: '',
       categories: [],
-      // categories: ['59f6fd721d41c805753670a2', '59f4e5bf1d41c806e5144ef3'],
       pictures: [],
       pictureId: '',
-      // relatedProducts: [],
-      relatedProducts: [
-        {
-          id: '59f6fd721d41c805753670a2',
-        },
-        {
-          id: '59f4e5bf1d41c806e5144ef3',
-        }
-      ],
+      relatedProducts: [],
       isNovelty: false,
       isAuction: false,
       discount: 0,
@@ -91,36 +83,14 @@ export default class Products extends React.Component {
     };
   }
 
-  componentDidMount() {
-    dispatch('page:titles:change', {
-      pageTitle: 'Управление продуктами'
-    });
-
-    // Get bootstrap product
-    bootstrap(
-      (bootstrap) => {
-        this.setState({
-          selected: bootstrap
-        },
-        () => {
-          // Get categories list
-          categoryTree({},
-            (categories) => {
-              let tree = [];
-              categories.forEach((category) => {
-                tree = tree.concat(this.categoryBranch(category));
-              });
-              this.setState({ categories: tree });
-            },
-            (e) => {
-              dispatch('notification:throw', {
-                type: 'danger',
-                title: 'Ошибка',
-                message: e.responseJSON.error
-              });
-            }
-          );
+  fetchCategories() {
+    categoryTree({},
+      (categories) => {
+        let tree = [];
+        categories.forEach((category) => {
+          tree = tree.concat(this.categoryBranch(category));
         });
+        this.setState({ categories: tree });
       },
       (e) => {
         dispatch('notification:throw', {
@@ -130,19 +100,56 @@ export default class Products extends React.Component {
         });
       }
     );
+  }
 
-    // if (this.props.params.id) {
-    //   get({ id: this.props.params.id },
-    //     (r) => this.setState({ selected: r, mode: 'edit' }),
-    //     (e) => {
-    //       dispatch('notification:throw', {
-    //         type: 'danger',
-    //         title: 'Ошибка',
-    //         message: e.responseJSON.error
-    //       });
-    //     }
-    //   );
-    // }
+  getBootstrapProduct() {
+    bootstrap(
+      (bootstrap) => {
+        this.setState(
+          { selected: bootstrap, mode: 'add' },
+          () => {
+            this.fetchCategories();
+            browserHistory.push(`#/products/${bootstrap.id}`);
+          }
+        );
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
+  }
+
+  componentDidMount() {
+    dispatch('page:titles:change', {
+      pageTitle: 'Управление продуктами'
+    });
+
+    // Edit mode
+    if (this.props.params.id) {
+      get({ id: this.props.params.id },
+        (r) => {
+          this.setState(
+            { selected: r, mode: 'edit' },
+            () => this.fetchCategories()
+          );
+        },
+        (e) => {
+          dispatch('notification:throw', {
+            type: 'danger',
+            title: 'Ошибка',
+            message: e.responseJSON.error
+          });
+        }
+      );
+    }
+    else
+    {
+      this.getBootstrapProduct();
+    }
   }
 
   categoryBranch(category, branch = [], depth = 0) {
@@ -240,8 +247,15 @@ export default class Products extends React.Component {
   updateProductHandler(e) {
     e.preventDefault();
 
+    const product = this.state.selected;
+    product.pictures = product.pictures.map(({ id }) => id);
+    product.relatedProducts = product.relatedProducts.map(({ id }) => id);
+
     update({ ...this.state.selected },
       (brand) => {
+        this.setState({
+          mode: 'edit'
+        });
         dispatch('notification:throw', {
           type: 'success',
           title: 'Успех',
@@ -318,13 +332,6 @@ export default class Products extends React.Component {
         });
       }
     );
-  }
-
-  resetProductHandler() {
-    this.setState({
-      mode: 'add',
-      selected: JSON.parse(JSON.stringify(this.emptyProduct))
-    });
   }
 
   updateField(field, value) {
@@ -501,7 +508,7 @@ export default class Products extends React.Component {
                   <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateProductHandler.bind(this)}> Добавить</button> :
                   <div class="btn-group">
                     <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateProductHandler.bind(this)}> Сохранить</button>
-                    <button type="submit" class="btn btn-default fa fa-file-o" onClick={this.resetProductHandler.bind(this)}> Новый</button>
+                    <button type="submit" class="btn btn-default fa fa-file-o" onClick={this.getBootstrapProduct.bind(this)}> Новый</button>
                   </div>
               }
             </div>

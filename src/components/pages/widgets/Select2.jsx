@@ -7,15 +7,12 @@ export default class Select2 extends React.Component {
 
     this.state = {
       data: this.props.data,
-      initialized: false
+      value: this.props.value,
     };
   }
 
-  componentWillReceiveProps({ data }) {
-    if (data.length === 0) {
-      return false;
-    }
-    this.setState({ data }, () => this._initSelect());
+  componentWillReceiveProps({ data, value }) {
+    this.setState({ data, value }, () => this._initSelect());
   }
 
   componentWillUnmount() {
@@ -33,10 +30,9 @@ export default class Select2 extends React.Component {
         return $(`<span style="padding-left:${(this.props.nestedOffset || 20) * (node.level || 0)}px">${node.title}</span>`);
       },
       initSelection : (element, callback) => {
-        const selected = this.state.initialized ?
-          ($(this.refs.select).val() || []).map((id) => this._getOptionById(id)) :
-          (this.props.value || []).map((id) => this._getOptionById(id));
-          // this.props.value;
+        const selected = (this.state.value || [])
+          .map((id) => this._getOptionById(id))
+          .filter((id) => id);
 
         callback(selected);
       }
@@ -44,11 +40,9 @@ export default class Select2 extends React.Component {
     .off('change')
     .on('change', (e) => this.props.onChange($(this.refs.select).val() || []));
 
-    if (!this.state.initialized) {
-      this.setState({ initialized: true }, () => {
-        this.props.value && $(this.refs.select).val(this.props.value);
-      });
-    }
+    this.setState({ initialized: true }, () => {
+      this.props.value && $(this.refs.select).val(this.props.value);
+    });
   }
 
   render() {
