@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import DeleteCategoryDialog from './popups/DeleteCategoryDialog.jsx';
 import Settings from '../../../core/helpers/Settings';
 import CategoriesTree from '../widgets/CategoriesTree.jsx';
+import Discount from '../widgets/Discount.jsx';
 import { Checkbox, Radio, RadioGroup } from 'react-icheck';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
@@ -20,7 +21,7 @@ export default class Categories extends React.Component {
       description: '',
       isHidden: false,
       discount: 0,
-      discountType: ''//Settings.get('currencyCode')
+      discountType: ''
     };
 
     this.state = {
@@ -31,8 +32,6 @@ export default class Categories extends React.Component {
 
       // Categories list
       categories: [],
-
-      discountType: this.getDiscountTypeLabel(),
     };
   }
 
@@ -72,10 +71,8 @@ export default class Categories extends React.Component {
         (r) => {
           this.setState({
             selected: this._expandModel(r),
-            discountType: this.getDiscountTypeLabel(r.discountType),
             mode: 'edit'
           });
-          this.refs.categoryDiscount.disabled = !r.discountType;
         },
         (e) => {
           dispatch('notification:throw', {
@@ -98,10 +95,8 @@ export default class Categories extends React.Component {
   selectCategoryHandler(selected) {
     this.setState({
       selected,
-      discountType: this.getDiscountTypeLabel(selected.discountType),
       mode: 'edit'
     });
-    this.refs.categoryDiscount.disabled = !selected.discountType;
   }
 
   categoryTitleChange(e) {
@@ -228,30 +223,7 @@ export default class Categories extends React.Component {
     this.setState({
       mode: 'add',
       selected: JSON.parse(JSON.stringify(this.emptyCategory)),
-      discountType: this.getDiscountTypeLabel('')
     });
-    this.refs.categoryDiscount.disabled = true;
-  }
-
-  getDiscountTypeLabel(discountType) {
-    return (!discountType) ? 'Нет' :
-      (discountType !== '%') ? Settings.get('currencyCode') : '%';
-  }
-
-  categoryDiscountTypeChanged(discountType, e) {
-    e.preventDefault();
-
-    this.state.selected.discountType = discountType;
-    this.setState({
-      selected: this.state.selected,
-      discountType: this.getDiscountTypeLabel(discountType)
-    });
-    this.refs.categoryDiscount.disabled = !discountType;
-  }
-
-  categoryDiscountChange(e) {
-    this.state.selected.discount = e.target.value.replace(/[^\d\.]/g, '');
-    this.setState({ selected: this.state.selected });
   }
 
   onCategorySelect(category) {
@@ -260,10 +232,8 @@ export default class Categories extends React.Component {
     }
     this.setState({
       selected: category,
-      discountType: this.getDiscountTypeLabel(category.discountType),
       mode: 'edit'
     });
-    this.refs.categoryDiscount.disabled = !category.discountType;
   }
 
   render() {
@@ -326,27 +296,26 @@ export default class Categories extends React.Component {
               <div class="form-group">
                 <label for="categoryDiscount">Скидка</label>
                 <div class="input-group">
-                  <input
-                    type="text"
-                    ref="categoryDiscount"
-                    class="form-control"
+                  <Discount
                     id="categoryDiscount"
-                    placeholder="0"
-                    onChange={this.categoryDiscountChange.bind(this)}
-                    value={this.state.selected.discount || ''}
-                    style={{ width: 60 }}
-                    disabled
+                    className="form-control"
+                    discountLabels={[
+                      { key: '',      value: 'Нет' },
+                      { key: '%',     value: '%' },
+                      { key: 'const', value: Settings.get('currencyCode') }
+                    ]}
+                    defaultValue={
+                      {
+                        key: this.state.selected.discountType,
+                        value: this.state.selected.discount
+                      }
+                    }
+                    onChange={({ discountType, discountValue }) => {
+                      this.state.selected.discount = discountValue;
+                      this.state.selected.discountType = discountType;
+                      this.setState({ selected: this.state.selected });
+                    }}
                   />
-                  <div class="input-group-btn pull-left">
-                    <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">{ this.state.discountType }
-                      <span class="fa fa-caret-down"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                      <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, '')}>Нет</a></li>
-                      <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, '%')}>%</a></li>
-                      <li><a href="#" onClick={this.categoryDiscountTypeChanged.bind(this, 'const')}>{ Settings.get('currencyCode') }</a></li>
-                    </ul>
-                  </div>
                 </div>
                 <span class="help-block">Скидка распространяется на все товары и подкатегории данной категории.
                   Если у подкатегории или товара задана своя скидка, то значение скидки будет взято с конфигурации

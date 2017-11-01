@@ -3,6 +3,7 @@ import { browserHistory } from "react-router";
 import { Link } from 'react-router';
 import Settings from '../../../core/helpers/Settings';
 import PowerTable from '../widgets/PowerTable.jsx';
+import PicturesList from '../widgets/PicturesList.jsx';
 import Select2 from '../widgets/Select2.jsx';
 import Discount from '../widgets/Discount.jsx';
 import { Checkbox } from 'react-icheck';
@@ -12,7 +13,7 @@ import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
 import DeleteProductDialog from './popups/DeleteProductDialog.jsx';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
-import { bootstrap, list, get, update, remove, addPicture } from '../../../actions/Products';
+import { bootstrap, list, get, update, remove } from '../../../actions/Products';
 import { tree as categoryTree } from '../../../actions/Category';
 
 export default class Products extends React.Component {
@@ -245,15 +246,16 @@ export default class Products extends React.Component {
   }
 
   updateProductHandler(e) {
-    e.preventDefault();
+    e && e.preventDefault();
 
     const product = this.state.selected;
     product.pictures = product.pictures.map(({ id }) => id);
     product.relatedProducts = product.relatedProducts.map(({ id }) => id);
 
     update({ ...this.state.selected },
-      (brand) => {
+      (product) => {
         this.setState({
+          selected: product,
           mode: 'edit'
         });
         dispatch('notification:throw', {
@@ -272,32 +274,15 @@ export default class Products extends React.Component {
     );
   }
 
-  addBrandPictureHandler(product, picture) {
-    addPicture({ product, picture },
-      (r) => {
-        this.setState({ selected: r, mode: 'edit' }, () => {
-          dispatch('notification:throw', {
-            type: 'success',
-            title: 'Успех',
-            message: 'Изображение продукта добавлено'
-          });
-        });
-      },
-      (e) => {
-        dispatch('notification:throw', {
-          type: 'danger',
-          title: 'Ошибка',
-          message: e.responseJSON.error
-        });
-      }
-    );
+  addProductPictureHandler(product, picture) {
+    const selected = this.state.selected;
+    this.state.selected.pictures.push(picture);
+    this.setState({ selected }, this.updateProductHandler);
   }
 
   setProductPictureHandler({ id }, e) {
     this.state.selected.pictureId = id;
-    this.setState({
-      selected: this.state.selected
-    });
+    this.setState({ selected: this.state.selected });
   }
 
   deleteProductHandler(product, e) {
@@ -394,22 +379,16 @@ export default class Products extends React.Component {
               </div>
               <div class="form-group">
                 <label>Изображения продукта *</label>
-                <div class="brand-pictures">
-                  {
-                    (this.state.selected.pictures || []).map((picture) => {
-                      return (
-                        <div
-                          key={picture.id}
-                          onClick={this.setProductPictureHandler.bind(this, picture)}
-                          class={"brand-picture".concat(this.state.selected.pictureId === picture.id ? ' selected' : '')}
-                        >
-                          <img src={`${buildUrl(picture)}`} />
-                        </div>
-                      );
-                    })
-                  }
-                  <div class="brand-picture empty" onClick={this._uploadFiles.bind(this)}>+</div>
-                </div>
+                <PicturesList
+                  className="brand-pictures"
+                  pictureClassName="brand-picture"
+                  pictureActiveClassName="selected"
+                  pictures={this.state.selected.pictures}
+                  activePictureId={this.state.selected.pictureId}
+                  onSelect={this.setProductPictureHandler.bind(this)}
+                  addPictureControll={true}
+                  addPictureCallback={this._uploadFiles.bind(this)}
+                />
               </div>
               <div class="form-group">
                 <label for="isNovelty">Новинка</label>
@@ -435,10 +414,10 @@ export default class Products extends React.Component {
               </div>
 
               <div class="form-group">
-                <label for="categoryDiscount">Скидка</label>
+                <label for="productDiscount">Скидка</label>
                 <div class="input-group">
                   <Discount
-                    id="categoryDiscount"
+                    id="productDiscount"
                     className="form-control"
                     discountLabels={[
                       { key: '',      value: 'Нет' },
