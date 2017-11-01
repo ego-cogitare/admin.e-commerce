@@ -1,5 +1,5 @@
 import React from 'react';
-import { buildUrl } from '../../../core/helpers/Utils';
+import { buildUrl } from '../../core/helpers/Utils';
 
 export default class PicturesList extends React.Component {
 

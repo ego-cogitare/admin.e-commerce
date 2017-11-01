@@ -1,7 +1,8 @@
 import React from 'react';
 import { Checkbox } from 'react-icheck';
 import { dispatch } from '../../../../core/helpers/EventEmitter';
-import CategoriesTree from '../../widgets/CategoriesTree.jsx';
+import CategoriesTree from '../../../widgets/CategoriesTree.jsx';
+import ProductsList from '../../../widgets/ProductsList.jsx';
 import { tree } from '../../../../actions/Category';
 import { list } from '../../../../actions/Products';
 import { buildUrl } from '../../../../core/helpers/Utils';
@@ -47,17 +48,6 @@ export default class RelativeProductsDialog extends React.Component {
     );
   }
 
-  onProductSelect(id, e) {
-    this.setState({
-      products: this.state.products.map((product) => {
-        if (product.id === id) {
-          product.selected = e.target.checked;
-        }
-        return product;
-      })
-    });
-  }
-
   render() {
     return (
       <div>
@@ -78,41 +68,13 @@ export default class RelativeProductsDialog extends React.Component {
 
           <div class="form-group">
             <label>Продукты категории(й) ({this.state.products.length} шт.)</label>
-            <div class="related-products">
-              {
-                this.state.products.length > 0 ?
-                  this.state.products.map(({ id, title, description, pictures, pictureId }) => {
-                    const picture = pictures.find(({ id }) => id === pictureId) || pictures[0];
-
-                    return (
-                      <div key={id} class="related media colmd-6">
-                        <div class="media-left">
-                          <a href="#">
-                            <img width="60" height="60" style={{ marginLeft:12 }} src={buildUrl(picture)} alt={picture.name} />
-                          </a>
-                        </div>
-                        <div class="media-body">
-                          <div class="clearfix">
-                            <p class="pull-right">
-                              <Checkbox
-                                checkboxClass="icheckbox_square-blue"
-                                increaseArea="20%"
-                                onChange={this.onProductSelect.bind(this, id)}
-                              />
-                            </p>
-                            <h4 style={{ marginTop:0 }}>{title}</h4>
-                            <p>{description}</p>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                  :
-                  <div class="text-center">
-                    Нет товаров для отображения
-                  </div>
-              }
-            </div>
+            <ProductsList
+              className="related-products no-border no-padding"
+              products={this.state.products}
+              manageControll="checkbox"
+            >
+              <div class="text-center">Категория не содержит товаров</div>
+            </ProductsList>
           </div>
 
         </div>
@@ -121,9 +83,12 @@ export default class RelativeProductsDialog extends React.Component {
           <button
             type="button"
             class="btn btn-primary pull-right"
-            onClick={() => this.props.onSelectClick(
-              this.state.products.filter(({ selected }) => selected )
-            )}>Выбрать</button>
+            onClick={() => {
+              this.props.onSelectClick(
+                this.state.products.filter(({ selected }) => selected )
+              );
+            }
+          }>Выбрать</button>
         </div>
       </div>
     );

@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router';
 import DeleteCategoryDialog from './popups/DeleteCategoryDialog.jsx';
 import Settings from '../../../core/helpers/Settings';
-import CategoriesTree from '../widgets/CategoriesTree.jsx';
-import Discount from '../widgets/Discount.jsx';
+import CategoriesTree from '../../widgets/CategoriesTree.jsx';
+import Discount from '../../widgets/Discount.jsx';
 import { Checkbox, Radio, RadioGroup } from 'react-icheck';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
@@ -250,6 +250,7 @@ export default class Categories extends React.Component {
               <div class="form-group">
                 <label>Дерево категорий</label>
                 <CategoriesTree
+                  multiple={false}
                   ref="categoryTree"
                   className="form-control"
                   categories={this.state.categories}

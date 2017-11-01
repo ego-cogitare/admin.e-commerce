@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router';
 import BootstrapTable from 'reactjs-bootstrap-table';
-import PowerTable from '../widgets/PowerTable.jsx';
-import PicturesList from '../widgets/PicturesList.jsx';
+import PowerTable from '../../widgets/PowerTable.jsx';
+import PicturesList from '../../widgets/PicturesList.jsx';
 import FileDragAndDrop from 'react-file-drag-and-drop';
 import FileUpload from 'react-fileupload';
 import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';

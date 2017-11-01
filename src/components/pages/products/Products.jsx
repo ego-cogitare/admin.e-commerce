@@ -3,10 +3,11 @@ import { browserHistory } from "react-router";
 import { Link } from 'react-router';
 import { Checkbox } from 'react-icheck';
 import Settings from '../../../core/helpers/Settings';
-import PowerTable from '../widgets/PowerTable.jsx';
-import PicturesList from '../widgets/PicturesList.jsx';
-import Select2 from '../widgets/Select2.jsx';
-import Discount from '../widgets/Discount.jsx';
+import PowerTable from '../../widgets/PowerTable.jsx';
+import PicturesList from '../../widgets/PicturesList.jsx';
+import ProductsList from '../../widgets/ProductsList.jsx';
+import Select2 from '../../widgets/Select2.jsx';
+import Discount from '../../widgets/Discount.jsx';
 import FileDragAndDrop from 'react-file-drag-and-drop';
 import FileUpload from 'react-fileupload';
 import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
@@ -97,7 +98,7 @@ export default class Products extends React.Component {
 
   componentDidMount() {
     dispatch('page:titles:change', {
-      pageTitle: 'Управление продуктами'
+      pageTitle: 'Управление товарами'
     });
 
     // Edit mode
@@ -176,13 +177,16 @@ export default class Products extends React.Component {
 
   _selectRelativeProducts() {
     dispatch('popup:show', {
-      title: 'Отметьте связанные продукты',
+      title: 'Отметьте связанные товары',
       body: this.relativeProductsDialog
     });
   }
 
   _setRelativeProducts(products) {
-    console.log(products);
+    const selected = this.state.selected;
+    selected.relatedProducts = products;
+
+    this.setState({ selected }, () => dispatch('popup:close'));
   }
 
   get columns() {
@@ -194,11 +198,11 @@ export default class Products extends React.Component {
             width="30"
             height="30"
             src={buildUrl(row.pictures.filter(({ id }) => id === row.pictureId)[0])}
-            style={{ objectFit: 'cover' }}
+            style={{ objectFit: 'contain' }}
           />
         );
       } },
-      { name: 'title', display: 'Продукт' },
+      { name: 'title', display: 'Товар' },
       { name: 'edit', display: 'Править', width: 10, sort: false, renderer: (row) => (
           <Link to={"products/" + row.id}
             onClick={this.selectProductHandler.bind(this, row)}>
@@ -257,7 +261,7 @@ export default class Products extends React.Component {
         dispatch('notification:throw', {
           type: 'success',
           title: 'Успех',
-          message: 'Продукт успешно сохранён'
+          message: 'Товар успешно сохранён'
         });
       },
       (e) => {
@@ -313,7 +317,7 @@ export default class Products extends React.Component {
         dispatch('notification:throw', {
           type: 'warning',
           title: 'Успех',
-          message: 'Продукт успешно удален'
+          message: 'Товар успешно удален'
         });
       },
       (e) => {
@@ -331,16 +335,6 @@ export default class Products extends React.Component {
     this.setState({ selected: this.state.selected });
   }
 
-  removeRelatedProduct(product, e) {
-    e.preventDefault();
-
-    const selected = this.state.selected;
-    selected.relatedProducts =
-      selected.relatedProducts.filter(({ id }) => id !== product.id) ;
-
-    this.setState({ selected });
-  }
-
   render() {
     this.initDialogs();
 
@@ -350,7 +344,7 @@ export default class Products extends React.Component {
 
           <div class="box box-primary">
             <div class="box-header with-border">
-              <h3 class="box-title">Список продуктов</h3>
+              <h3 class="box-title">Список товаров</h3>
             </div>
             <div class="box-body">
               <div class="col-sm-12">
@@ -361,7 +355,8 @@ export default class Products extends React.Component {
                       columns={this.columns}
                       data={this.state.products}
                     >
-                    Список продуктов пуст</PowerTable>
+                      <div class="text-center">Список товаров пуст</div>
+                  </PowerTable>
                 </div>
               </div>
             </div>
@@ -369,32 +364,32 @@ export default class Products extends React.Component {
 
           <div class="box box-primary">
             <div class="box-header with-border">
-              <h3 class="box-title">Продукт</h3>
+              <h3 class="box-title">Товар</h3>
             </div>
             <div class="box-body">
               <div class="form-group">
-                <label for="brandTitle">Название продукта *</label>
+                <label for="brandTitle">Название товара *</label>
                 <input
                   type="text"
                   class="form-control"
                   id="productTitle"
                   onChange={(e) => this.updateField('title', e.target.value)}
                   value={this.state.selected.title || ''}
-                  placeholder="Введите название продукта"
+                  placeholder="Введите название товара"
                 />
               </div>
               <div class="form-group">
-                <label for="productDescription">Описание продукта *</label>
+                <label for="productDescription">Описание товара *</label>
                 <textarea
                   class="form-control"
                   id="productDescription"
                   onChange={(e) => this.updateField('description', e.target.value)}
                   value={this.state.selected.description || ''}
-                  placeholder="Введите описание продукта"
+                  placeholder="Введите описание товара"
                 />
               </div>
               <div class="form-group">
-                <label for="productCategories">Категории продукта *</label>
+                <label for="productCategories">Категории товара *</label>
                 <Select2
                   style={{ width: '100%' }}
                   nestedOffset="30"
@@ -405,7 +400,7 @@ export default class Products extends React.Component {
                 />
               </div>
               <div class="form-group">
-                <label>Изображения продукта *</label>
+                <label>Изображения товара *</label>
                 <PicturesList
                   className="brand-pictures"
                   pictureClassName="brand-picture"
@@ -429,7 +424,7 @@ export default class Products extends React.Component {
                 />
               </div>
               <div class="form-group">
-                <label for="isProductAuction">Продукт аукционный</label>
+                <label for="isProductAuction">Товар аукционный</label>
                 <br/>
                 <Checkbox
                   id="isProductAuction"
@@ -480,28 +475,16 @@ export default class Products extends React.Component {
               <div class="form-group">
                 <label for="isAvailable">С этим товаром покупают</label>
                 <div class="related-products no-border no-padding">
-                  {
-                    this.state.selected.relatedProducts.map((relatedProduct) => {
-                      return (
-                        <div class="related media" key={relatedProduct.id}>
-                          <div class="media-left">
-                            <a href="#">
-                              <img width="65" height="65" src="http://api.e-commerce.loc/uploads/2017-08-19 19.43.30.1.jpg" alt="" />
-                            </a>
-                          </div>
-                          <div class="media-body">
-                            <div class="clearfix">
-                              <p class="pull-right">
-                                <a href="#" onClick={this.removeRelatedProduct.bind(this, relatedProduct)} class="btn btn-info btn-sm fa fa-trash"></a>
-                              </p>
-                              <h4>Material Dashboard Pro ─ $59</h4>
-                              <p>Angular 2 Premium Material Bootstrap Admin with a fresh, new design inspired by Google's Material Design</p>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
-                  }
+                  <ProductsList
+                    className="related-products no-border no-padding"
+                    products={this.state.selected.relatedProducts}
+                    manageControll="trash"
+                    onControllClick={(productId) => {
+                      const selected = this.state.selected;
+                      selected.relatedProducts = selected.relatedProducts.filter(({ id }) => id !== productId);
+                      this.setState({ selected });
+                    }}
+                  />
                   <div class="media brand-pictures">
                     <div class="brand-picture empty" onClick={this._selectRelativeProducts.bind(this)} style={{ width:65, height:65, lineHeight:'63px' }}>+</div>
                   </div>
