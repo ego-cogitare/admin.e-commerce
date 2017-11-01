@@ -41,3 +41,19 @@
   vertical-align: middle;
   margin-left: 5px;
 }
+
+.related-products {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid #ccc;
+  padding: 12px 0;
+}
+
+.related-products .media-body {
+  padding-right: 12px;
+}
+
+.related-products .media-body .clearfix {
+  border-bottom: 1px solid #ccc;
+}

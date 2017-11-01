@@ -1,19 +1,20 @@
 import React from 'react';
 import { browserHistory } from "react-router";
 import { Link } from 'react-router';
+import { Checkbox } from 'react-icheck';
 import Settings from '../../../core/helpers/Settings';
 import PowerTable from '../widgets/PowerTable.jsx';
 import PicturesList from '../widgets/PicturesList.jsx';
 import Select2 from '../widgets/Select2.jsx';
 import Discount from '../widgets/Discount.jsx';
-import { Checkbox } from 'react-icheck';
 import FileDragAndDrop from 'react-file-drag-and-drop';
 import FileUpload from 'react-fileupload';
 import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
 import DeleteProductDialog from './popups/DeleteProductDialog.jsx';
+import RelativeProductsDialog from './popups/RelativeProductsDialog.jsx'; //+++++++
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
-import { bootstrap, list, get, update, remove } from '../../../actions/Products';
+import { bootstrap, list, get, update, remove, addPicture } from '../../../actions/Products';
 import { tree as categoryTree } from '../../../actions/Category';
 
 export default class Products extends React.Component {
@@ -38,6 +39,7 @@ export default class Products extends React.Component {
     };
 
     this.state = {
+      // Current product form mode
       mode: this.props.params.id ? 'edit' : 'add',
 
       // Path to upload brand pictures
@@ -169,6 +171,18 @@ export default class Products extends React.Component {
       />;
 
     this.deleteProductDialog = <DeleteProductDialog onDeleteClick={this._deleteProduct.bind(this)} />;
+    this.relativeProductsDialog = <RelativeProductsDialog onSelectClick={this._setRelativeProducts.bind(this)} style={{ width:1200 }} />;
+  }
+
+  _selectRelativeProducts() {
+    dispatch('popup:show', {
+      title: 'Отметьте связанные продукты',
+      body: this.relativeProductsDialog
+    });
+  }
+
+  _setRelativeProducts(products) {
+    console.log(products);
   }
 
   get columns() {
@@ -227,18 +241,19 @@ export default class Products extends React.Component {
   }
 
   updateProductHandler(e) {
-    e && e.preventDefault();
+    e.preventDefault();
 
-    const product = this.state.selected;
+    const product = JSON.parse(JSON.stringify(this.state.selected));
     product.pictures = product.pictures.map(({ id }) => id);
     product.relatedProducts = product.relatedProducts.map(({ id }) => id);
 
-    update({ ...this.state.selected },
-      (product) => {
-        this.setState({
-          selected: product,
-          mode: 'edit'
-        });
+    update(product,
+      (r) => {
+        this.setState({ selected: r, mode: 'edit' });
+
+        if (product.type !== 'final') {
+          this.setState({ products: this.state.products.concat(r) });
+        }
         dispatch('notification:throw', {
           type: 'success',
           title: 'Успех',
@@ -256,9 +271,20 @@ export default class Products extends React.Component {
   }
 
   addProductPictureHandler(product, picture) {
-    const selected = this.state.selected;
-    this.state.selected.pictures.push(picture);
-    this.setState({ selected }, this.updateProductHandler);
+    addPicture({ product, picture },
+      (r) => {
+        const selected = this.state.selected;
+        selected.pictures.push(picture);
+        this.setState({ selected });
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
   }
 
   setProductPictureHandler({ id }, e) {
@@ -321,6 +347,26 @@ export default class Products extends React.Component {
     return (
       <div class="row">
         <div class="col-xs-12">
+
+          <div class="box box-primary">
+            <div class="box-header with-border">
+              <h3 class="box-title">Список продуктов</h3>
+            </div>
+            <div class="box-body">
+              <div class="col-sm-12">
+                <div class="row">
+                    <PowerTable
+                      header={true}
+                      footer={true}
+                      columns={this.columns}
+                      data={this.state.products}
+                    >
+                    Список продуктов пуст</PowerTable>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="box box-primary">
             <div class="box-header with-border">
               <h3 class="box-title">Продукт</h3>
@@ -380,7 +426,7 @@ export default class Products extends React.Component {
                   increaseArea="20%"
                   checked={this.state.selected.isNovelty}
                   onChange={(e) => this.updateField('isNovelty', !e.target.checked)}
-                  />
+                />
               </div>
               <div class="form-group">
                 <label for="isProductAuction">Продукт аукционный</label>
@@ -433,7 +479,7 @@ export default class Products extends React.Component {
 
               <div class="form-group">
                 <label for="isAvailable">Связанные продукты</label>
-                <div class="related-products">
+                <div class="related-products no-border no-padding">
                   {
                     this.state.selected.relatedProducts.map((relatedProduct) => {
                       return (
@@ -457,7 +503,7 @@ export default class Products extends React.Component {
                     })
                   }
                   <div class="media brand-pictures">
-                    <div class="brand-picture empty" onClick={this._uploadFiles.bind(this)} style={{ width:65, height:65, lineHeight: '63px' }}>+</div>
+                    <div class="brand-picture empty" onClick={this._selectRelativeProducts.bind(this)} style={{ width:65, height:65, lineHeight:'63px' }}>+</div>
                   </div>
                 </div>
               </div>
@@ -474,24 +520,6 @@ export default class Products extends React.Component {
             </div>
           </div>
 
-          <div class="box box-primary">
-            <div class="box-header with-border">
-              <h3 class="box-title">Список продуктов</h3>
-            </div>
-            <div class="box-body">
-              <div class="col-sm-12">
-                <div class="row">
-                    <PowerTable
-                      header={true}
-                      footer={true}
-                      columns={this.columns}
-                      data={this.state.products}
-                    >
-                    Список продуктов пуст</PowerTable>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     );

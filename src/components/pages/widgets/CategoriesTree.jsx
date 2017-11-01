@@ -6,26 +6,30 @@ export default class CategoriesTree extends React.Component {
     super(props);
 
     this.state = {
-      categories: this.props.categories
+      categories: this.props.categories,
+      multiple: false
     };
   }
 
-  _getById(catId) {
-    return this.state.categories.filter(({ id }) => id === catId)[0];
+  _getByIds(ids) {
+    return this.state.categories.filter(({ id }) => ids.indexOf(id) !== -1);
   }
 
   get selected() {
     return this._getById(this.refs.categoryTree.value);
   }
 
-  componentWillReceiveProps({ categories }) {
+  componentWillReceiveProps({ categories, multiple }) {
     let tree = [];
 
     categories.forEach((category) => {
       tree = tree.concat(this.categoryBranch(category));
     });
 
-    this.setState({ categories: tree });
+    this.setState({ categories: tree, multiple });
+
+    // Set multiple option for category tree
+    this.refs.categoryTree.multiple = multiple || false;
   }
 
   categoryBranch(category, branch = [], depth = 0) {
@@ -45,9 +49,11 @@ export default class CategoriesTree extends React.Component {
   }
 
   onChange(e) {
-    this.props.onSelect(
-      this._getById(e.target.value)
-    );
+    const categories = this._getByIds($(e.target).val() || []);
+
+    this.state.multiple ?
+      this.props.onSelect(categories) :
+      this.props.onSelect(categories[1]);
   }
 
   render() {

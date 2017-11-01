@@ -20,3 +20,7 @@ export function get({ id }, success, error) {
 export function bootstrap(success, error) {
     request(`/product/bootstrap`, {}, 'get', success, error);
 };
+
+export function addPicture({ product, picture }, success, error) {
+    request(`/product/add-picture/${product.id}`, { picture }, 'post', success, error);
+};
