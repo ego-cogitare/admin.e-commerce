@@ -478,7 +478,7 @@ export default class Products extends React.Component {
               </div>
 
               <div class="form-group">
-                <label for="isAvailable">Связанные продукты</label>
+                <label for="isAvailable">С этим товаром покупают</label>
                 <div class="related-products no-border no-padding">
                   {
                     this.state.selected.relatedProducts.map((relatedProduct) => {
