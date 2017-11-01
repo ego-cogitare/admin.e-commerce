@@ -46,39 +46,8 @@ export default class Products extends React.Component {
       // Current selected brand
       selected: JSON.parse(JSON.stringify(this.emptyProduct)),
 
-      // Brands list
-      products: [
-        {
-          id: '1',
-          title: 'Продукт №1',
-          categories: [],
-          pictures: [],
-          pictureId: '',
-          description: 'Описание продукта №1',
-          relatedProducts: [],
-          isNew: true,
-          isAction: false,
-          discount: 0,
-          discountType: '',
-          isAvailable: true,
-          availableAmount: -1
-        },
-        {
-          id: '2',
-          title: 'Продукт №2',
-          categories: [],
-          pictures: [],
-          pictureId: '',
-          description: 'Описание продукта №2',
-          relatedProducts: [],
-          isNew: true,
-          isAction: false,
-          discount: 0,
-          discountType: '',
-          isAvailable: true,
-          availableAmount: -1
-        },
-      ],
+      // Products list
+      products: [],
 
       categories: []
     };
@@ -147,10 +116,23 @@ export default class Products extends React.Component {
         }
       );
     }
+    // Get bootstrap product
     else
     {
       this.getBootstrapProduct();
     }
+
+    // Get products list
+    list({},
+      (products) => this.setState({ products }),
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
   }
 
   categoryBranch(category, branch = [], depth = 0) {
@@ -191,7 +173,6 @@ export default class Products extends React.Component {
 
   get columns() {
     return [
-      { name: 'id', display: 'ID', sort: false },
       { name: 'picture', width: 5, display: 'Фото', sort: false, renderer: (row) => {
         if (!row.pictureId) { return null; }
         return (
@@ -223,7 +204,7 @@ export default class Products extends React.Component {
 
   selectProductHandler(product) {
     this.setState({
-      selected: product,
+      selected: JSON.parse(JSON.stringify(product)),
       mode: 'edit'
     });
   }

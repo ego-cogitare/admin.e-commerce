@@ -43,11 +43,8 @@ export default class Brands extends React.Component {
     });
 
     // Get brands list
-    list({ limit: 10, offset: 0 },
-      (brands) => {
-        this.setState({ brands });
-        this.brands = brands;
-      },
+    list({},
+      (brands) => this.setState({ brands }),
       (e) => {
         dispatch('notification:throw', {
           type: 'danger',
@@ -110,13 +107,6 @@ export default class Brands extends React.Component {
     ];
   }
 
-  filterChangeHandler(e) {
-    this.setState({ brands: this.brands.filter((brand) => {
-        return brand.title.toLowerCase().match(e.target.value.toLowerCase());
-      })
-    });
-  }
-
   selectBrandHandler(brand) {
     this.setState({ selected: brand, mode: 'edit' });
   }
@@ -144,10 +134,7 @@ export default class Brands extends React.Component {
             selected: this.state.selected,
             brands: this.state.brands.concat(this.state.selected)
           },
-          () => {
-            this.brands = this.brands.concat(this.state.selected);
-            onSuccess(r);
-          }
+          () => onSuccess(r)
         );
       },
       onFail
