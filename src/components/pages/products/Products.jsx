@@ -34,6 +34,7 @@ export default class Products extends React.Component {
       relatedProducts: [],
       isNovelty: false,
       isAuction: false,
+      isBestseller: false,
       discount: 0,
       discountType: '',
       isAvailable: true,
@@ -401,8 +402,11 @@ export default class Products extends React.Component {
                 <Select2
                   style={{ width: '100%' }}
                   nestedOffset="30"
+                  multiple={false}
                   placeholder="Выберите одну или несколько категорий"
-                  onChange={(categories) => this.updateField('categories', categories)}
+                  onChange={(categories) => {
+                    this.updateField('categories', [ categories ]);
+                  }}
                   data={this.state.categories}
                   value={this.state.selected.categories}
                 />
@@ -432,7 +436,7 @@ export default class Products extends React.Component {
                 />
               </div>
               <div class="form-group">
-                <label for="isProductAuction">Товар аукционный</label>
+                <label for="isProductAuction">Акция</label>
                 <br/>
                 <Checkbox
                   id="isProductAuction"
@@ -440,6 +444,17 @@ export default class Products extends React.Component {
                   increaseArea="20%"
                   checked={this.state.selected.isAuction}
                   onChange={(e) => this.updateField('isAuction', !e.target.checked)}
+                />
+              </div>
+              <div class="form-group">
+                <label for="isProductBestseller">Бестселлер</label>
+                <br/>
+                <Checkbox
+                  id="isProductBestseller"
+                  checkboxClass="icheckbox_square-blue"
+                  increaseArea="20%"
+                  checked={this.state.selected.isBestseller}
+                  onChange={(e) => this.updateField('isBestseller', !e.target.checked)}
                 />
               </div>
 

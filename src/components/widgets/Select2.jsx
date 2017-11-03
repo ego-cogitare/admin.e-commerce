@@ -15,6 +15,10 @@ export default class Select2 extends React.Component {
     this.setState({ data, value }, () => this._initSelect());
   }
 
+  componentDidMount() {
+    this.refs.select.multiple = this.props.multiple || false;
+  }
+
   componentWillUnmount() {
     $(this.refs.select).select2('destroy');
   }
@@ -38,7 +42,13 @@ export default class Select2 extends React.Component {
       }
     })
     .off('change')
-    .on('change', (e) => this.props.onChange($(this.refs.select).val() || []));
+    .on('change', (e) => {
+      const selected = $(this.refs.select).val();
+
+      this.props.multiple ?
+        this.props.onChange(selected || []) :
+        this.props.onChange(selected || '');
+    });
 
     this.setState({ initialized: true }, () => {
       this.props.value && $(this.refs.select).val(this.props.value);
@@ -49,7 +59,6 @@ export default class Select2 extends React.Component {
     return (
       <select
         ref="select"
-        multiple
         style={this.props.style}
         data-placeholder={this.props.placeholder}
       ></select>

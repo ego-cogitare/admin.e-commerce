@@ -17,17 +17,21 @@ const routes = {
       component: require('../components/pages/products/Products.jsx').default
     },
     {
-      path: 'file-manager',
-      component: require('../components/pages/fileManager/FileManager.jsx').default
+      path: 'static-pages',
+      component: require('../components/pages/staticPages/StaticPages.jsx').default
     },
-    // {
-    //   path: 'users',
-    //   component: require('../components/pages/users/Users.jsx').default
-    // },
     {
       path: 'settings',
       component: require('../components/pages/settings/Settings.jsx').default
     },
+    // {
+    //   path: 'file-manager',
+    //   component: require('../components/pages/fileManager/FileManager.jsx').default
+    // },
+    // {
+    //   path: 'users',
+    //   component: require('../components/pages/users/Users.jsx').default
+    // },
 
     // Coordinator components
     {

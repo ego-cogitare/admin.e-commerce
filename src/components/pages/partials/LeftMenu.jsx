@@ -29,6 +29,9 @@ export default class LeftMenu extends React.Component {
             <li>
               <Link to="/products" activeClassName="active"><i class="fa fa-tv"></i> <span>Товары</span></Link>
             </li>
+            <li>
+              <Link to="/static-pages" activeClassName="active"><i class="fa fa-file-code-o"></i> <span>Cтатические страницы</span></Link>
+            </li>
             {/*<li>
               <Link to="/file-manager" activeClassName="active"><i class="fa fa-link"></i> <span>Файловый менеджер</span></Link>
             </li>

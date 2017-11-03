@@ -76,9 +76,9 @@ export default class ProductsList extends React.Component {
                   </div>
                   <div class="media-body">
                     <div class="clearfix">
-                      <p class="pull-right">
+                      <div class="pull-right">
                         {this._getControll(id)}
-                      </p>
+                      </div>
                       <h4 style={{ marginTop:0 }}>{title}</h4>
                       <p>{description}</p>
                     </div>
