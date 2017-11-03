@@ -57,6 +57,7 @@ module.exports = {
           './vendors/datatable/media/css/dataTables.bootstrap.min.css',
           './vendors/select2/dist/css/select2.min.css',
           './vendors/trumbowyg/dist/ui/trumbowyg.min.css',
+          './vendors/trumbowyg/dist/plugins/colors/ui/trumbowyg.colors.min.css',
         ],
         js: [
           './vendors/jquery/jquery.min.js',
@@ -65,6 +66,7 @@ module.exports = {
           './vendors/datatable/media/js/dataTables.bootstrap.min.js',
           './vendors/select2/dist/js/select2.full.min.js',
           './vendors/trumbowyg/dist/trumbowyg.min.js',
+          './vendors/trumbowyg/dist/plugins/colors/trumbowyg.colors.min.js',
         ]
       }
     })

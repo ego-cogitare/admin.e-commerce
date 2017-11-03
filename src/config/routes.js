@@ -17,13 +17,21 @@ const routes = {
       component: require('../components/pages/products/Products.jsx').default
     },
     {
-      path: 'static-pages',
+      path: 'static-pages(/:id)',
       component: require('../components/pages/staticPages/StaticPages.jsx').default
     },
     {
       path: 'settings',
       component: require('../components/pages/settings/Settings.jsx').default
     },
+    {
+      path: 'orders',
+      component: require('../components/pages/orders/Orders.jsx').default
+    },
+    // {
+    //   path: '/',
+    //   component: require('../components/pages/orders/Orders.jsx').default
+    // },
     // {
     //   path: 'file-manager',
     //   component: require('../components/pages/fileManager/FileManager.jsx').default
@@ -32,16 +40,6 @@ const routes = {
     //   path: 'users',
     //   component: require('../components/pages/users/Users.jsx').default
     // },
-
-    // Coordinator components
-    {
-    },
-    // ...
-
-    // Tutor components
-    {
-    },
-    // ...
   ],
   // Custom route component handler depending of the user type
   custom: {

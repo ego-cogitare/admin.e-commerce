@@ -1,6 +1,6 @@
 import React from 'react';
 import Moment from 'moment';
-import { browserHistory } from "react-router";
+import { browserHistory } from 'react-router';
 import { Link } from 'react-router';
 import { Checkbox } from 'react-icheck';
 import Settings from '../../../core/helpers/Settings';

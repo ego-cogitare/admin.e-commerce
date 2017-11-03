@@ -39,10 +39,10 @@ export default class LeftMenu extends React.Component {
                </a>
              </li>
              <li>
-               <a href="#" data-toggle="control-sidebar">
+               <Link to="orders">
                  <i class="fa fa-shopping-cart"></i>
                  <span class="label label-success">10</span>
-               </a>
+               </Link>
              </li>
              <li>
                <Link to="settings">
