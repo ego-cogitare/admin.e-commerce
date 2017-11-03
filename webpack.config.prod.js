@@ -53,7 +53,7 @@ module.exports = {
       exclude: ['vendors/**/*', 'icons/**/*'],
     }),
     new HtmlWebpackPlugin({
-      title: 'Admin panel',
+      title: 'Юнимерд::панель администратора',
       inject: false,
       template: 'src/staticFiles/index.ejs',
       externalSources: {

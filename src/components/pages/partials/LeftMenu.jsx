@@ -26,18 +26,29 @@ export default class LeftMenu extends React.Component {
             <li>
               <Link to="/brands" activeClassName="active"><i class="fa fa-apple"></i> <span>Бренды</span></Link>
             </li>
-            <li>
-              <Link to="/products" activeClassName="active"><i class="fa fa-tv"></i> <span>Товары</span></Link>
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-tv"></i> <span>Товары</span>
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                <li>
+                  <Link to="/products" activeClassName="active">
+                    <i class="fa fa-circle-o"></i> <span>Каталог</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/import" activeClassName="active">
+                    <i class="fa fa-circle-o"></i> <span>Импорт</span>
+                  </Link>
+                </li>
+              </ul>
             </li>
             <li>
-              <Link to="/static-pages" activeClassName="active"><i class="fa fa-file-code-o"></i> <span>Cтатические страницы</span></Link>
+              <Link to="/static-pages" activeClassName="active"><i class="fa fa-file-code-o"></i> <span>Cтраницы</span></Link>
             </li>
-            {/*<li>
-              <Link to="/file-manager" activeClassName="active"><i class="fa fa-link"></i> <span>Файловый менеджер</span></Link>
-            </li>
-            <li>
-              <Link to="/users" activeClassName="active"><i class="fa fa-user"></i> <span>Пользователи</span></Link>
-            </li>*/}
           </ul>
         </section>
       </aside>

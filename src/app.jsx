@@ -6,8 +6,6 @@ import Layout from './components/pages/Layout.jsx';
 import Login from './components/pages/Login.jsx';
 import Routes from './config/routes';
 
-console.log(Routes)
-
 ReactDOM.render(
   <Router history={hashHistory}>
     <Route path="/login" component={Login} onEnter={Auth.routeEnter.bind(Auth)} />
