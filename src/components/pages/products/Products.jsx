@@ -1,4 +1,5 @@
 import React from 'react';
+import Moment from 'moment';
 import { browserHistory } from "react-router";
 import { Link } from 'react-router';
 import { Checkbox } from 'react-icheck';
@@ -172,7 +173,11 @@ export default class Products extends React.Component {
       />;
 
     this.deleteProductDialog = <DeleteProductDialog onDeleteClick={this._deleteProduct.bind(this)} />;
-    this.relativeProductsDialog = <RelativeProductsDialog onSelectClick={this._setRelativeProducts.bind(this)} style={{ width:1200 }} />;
+    this.relativeProductsDialog = <RelativeProductsDialog
+      onSelectClick={this._setRelativeProducts.bind(this)}
+      selected={this.state.selected.relatedProducts.map(({ id }) => id).concat([this.state.selected.id])}
+      style={{ width:1200 }}
+    />;
   }
 
   _selectRelativeProducts() {
@@ -184,7 +189,7 @@ export default class Products extends React.Component {
 
   _setRelativeProducts(products) {
     const selected = this.state.selected;
-    selected.relatedProducts = products;
+    selected.relatedProducts = selected.relatedProducts.concat(products);
 
     this.setState({ selected }, () => dispatch('popup:close'));
   }
@@ -198,11 +203,14 @@ export default class Products extends React.Component {
             width="30"
             height="30"
             src={buildUrl(row.pictures.filter(({ id }) => id === row.pictureId)[0])}
-            style={{ objectFit: 'contain' }}
+            style={{ objectFit: 'cover' }}
           />
         );
       } },
       { name: 'title', display: 'Товар' },
+      { name: 'dateCreated', display: 'Добавлен', sort: true, renderer: ({ dateCreated }) => {
+        return Moment(dateCreated * 1000).format('DD.MM.YYYY HH:mm');
+      } },
       { name: 'edit', display: 'Править', width: 10, sort: false, renderer: (row) => (
           <Link to={"products/" + row.id}
             onClick={this.selectProductHandler.bind(this, row)}>
@@ -485,9 +493,9 @@ export default class Products extends React.Component {
                       this.setState({ selected });
                     }}
                   />
-                  <div class="media brand-pictures">
-                    <div class="brand-picture empty" onClick={this._selectRelativeProducts.bind(this)} style={{ width:65, height:65, lineHeight:'63px' }}>+</div>
-                  </div>
+                </div>
+                <div class="media brand-pictures">
+                  <div class="brand-picture empty" onClick={this._selectRelativeProducts.bind(this)} style={{ width:60, height:60, lineHeight:'58px' }}>+</div>
                 </div>
               </div>
             </div>

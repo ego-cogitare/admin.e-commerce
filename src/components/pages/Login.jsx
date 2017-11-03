@@ -27,10 +27,10 @@ export default class Login extends React.Component {
         <Notifications limit="3" />
         <div class="login-box">
           <div class="login-logo">
-            <b>Admin</b>
+            <b>Юнимед</b>
           </div>
           <div class="login-box-body">
-            <p class="login-box-msg">Sign in to start your session</p>
+            <p class="login-box-msg">Авторизация в панеле администратора</p>
             <form onSubmit={this.handleLogin.bind(this)}>
               <div class="form-group has-feedback">
                 <input type="email" defaultValue="" class="form-control" placeholder="Email" ref="login" />
@@ -44,12 +44,12 @@ export default class Login extends React.Component {
                 <div class="col-xs-8">
                   <div class="checkbox icheck">
                     <label>
-                      <input type="checkbox" ref="rememberMe" defaultChecked={false} /> Remember Me
+                      <input type="checkbox" ref="rememberMe" defaultChecked={false} /> Запомнить
                     </label>
                   </div>
                 </div>
                 <div class="col-xs-4">
-                  <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+                  <button type="submit" class="btn btn-primary btn-block btn-flat">Войти</button>
                 </div>
               </div>
             </form>

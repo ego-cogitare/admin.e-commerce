@@ -32,12 +32,26 @@ export default class RelativeProductsDialog extends React.Component {
   }
 
   onCategorySelect(categories) {
-    list({ filter: {
-        categories: {
-          '$in': categories.map(({ id }) => id)
+    if (categories.length === 0) {
+      return ;
+    }
+    const params = (categories[0].id === '') ?
+      {} :
+      {
+        filter: {
+          categories: { '$in': categories.map(({ id }) => id) }
+        },
+        sort: {
+          title: 1
         }
-      }},
-      (products) => this.setState({ products }),
+      };
+    list(params,
+      (products) => {
+        // Only not yet added products
+        this.setState({
+          products: products.filter(({ id }) => (this.props.selected || []).indexOf(id) === -1)
+        });
+      },
       (e) => {
         dispatch('notification:throw', {
           type: 'danger',
@@ -58,7 +72,7 @@ export default class RelativeProductsDialog extends React.Component {
               multiple={true}
               ref="categoryTree"
               className="form-control"
-              categories={this.state.categories}
+              categories={[{ id: '',  title: '(Все)', className: 'text-gray' }].concat(this.state.categories)}
               size="12"
               categoryIndent="15"
               onSelect={this.onCategorySelect.bind(this)}
@@ -67,13 +81,13 @@ export default class RelativeProductsDialog extends React.Component {
           </div>
 
           <div class="form-group">
-            <label>Продукты категории(й) ({this.state.products.length} шт.)</label>
+            <label>Доступные товары для добавления ({this.state.products.length} шт.)</label>
             <ProductsList
               className="related-products no-border no-padding"
               products={this.state.products}
               manageControll="checkbox"
             >
-              <div class="text-center">Категория не содержит товаров</div>
+              <div class="text-center">Нет доступных для отображения товаров</div>
             </ProductsList>
           </div>
 

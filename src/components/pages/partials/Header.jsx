@@ -22,7 +22,7 @@ export default class LeftMenu extends React.Component {
       <header className="main-header">
        <a href="/" className="logo">
          <span className="logo-mini"><b>A</b>LT</span>
-         <span className="logo-lg"><b>Admin</b></span>
+         <span className="logo-lg"><b>Юнимед</b></span>
        </a>
        <nav className="navbar navbar-static-top" role="navigation">
          <a href="#" className="sidebar-toggle" data-toggle="offcanvas" role="button">

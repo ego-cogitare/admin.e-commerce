@@ -13,7 +13,6 @@ export default class ProductsList extends React.Component {
   }
 
   componentWillReceiveProps({ products }) {
-    console.log(products)
     this.setState({ products });
   }
 

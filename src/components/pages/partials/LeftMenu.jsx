@@ -29,12 +29,12 @@ export default class LeftMenu extends React.Component {
             <li>
               <Link to="/products" activeClassName="active"><i class="fa fa-tv"></i> <span>Товары</span></Link>
             </li>
-            <li>
+            {/*<li>
               <Link to="/file-manager" activeClassName="active"><i class="fa fa-link"></i> <span>Файловый менеджер</span></Link>
             </li>
             <li>
               <Link to="/users" activeClassName="active"><i class="fa fa-user"></i> <span>Пользователи</span></Link>
-            </li>
+            </li>*/}
           </ul>
         </section>
       </aside>
