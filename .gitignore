@@ -7,3 +7,4 @@ public/images/
 .idea/
 public/assets/
 src/config/config.prod.js
+/nbproject/private/

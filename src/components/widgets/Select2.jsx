@@ -37,7 +37,7 @@ export default class Select2 extends React.Component {
         const selected = (this.state.value || [])
           .map((id) => this._getOptionById(id))
           .filter((id) => id);
-
+console.log(selected)
         callback(selected);
       }
     })
@@ -50,9 +50,7 @@ export default class Select2 extends React.Component {
         this.props.onChange(selected || '');
     });
 
-    this.setState({ initialized: true }, () => {
-      this.props.value && $(this.refs.select).val(this.props.value);
-    });
+    this.props.value && $(this.refs.select).val(this.props.value);
   }
 
   render() {

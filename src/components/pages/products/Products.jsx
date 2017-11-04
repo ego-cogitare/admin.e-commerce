@@ -13,11 +13,12 @@ import FileDragAndDrop from 'react-file-drag-and-drop';
 import FileUpload from 'react-fileupload';
 import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
 import DeleteProductDialog from './popups/DeleteProductDialog.jsx';
-import RelativeProductsDialog from './popups/RelativeProductsDialog.jsx'; //+++++++
+import RelativeProductsDialog from './popups/RelativeProductsDialog.jsx';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
 import { bootstrap, list, get, update, remove, addPicture } from '../../../actions/Products';
 import { tree as categoryTree } from '../../../actions/Category';
+import { list as brandList } from '../../../actions/Brand';
 
 export default class Products extends React.Component {
 
@@ -28,7 +29,8 @@ export default class Products extends React.Component {
       id: '',
       title: '',
       description: '',
-      categories: [],
+      brandId: '',
+      categoryId: '',
       pictures: [],
       pictureId: '',
       relatedProducts: [],
@@ -54,7 +56,11 @@ export default class Products extends React.Component {
       // Products list
       products: [],
 
-      categories: []
+      // Список категорий
+      categories: [],
+
+      // Список брэндов
+      brands: []
     };
   }
 
@@ -77,6 +83,23 @@ export default class Products extends React.Component {
     );
   }
 
+  fetchBrands() {
+    brandList({},
+      (brands) => {
+        this.setState({
+          brands: brands.map((brand) => Object.assign(brand, { text: brand.title }))
+        });
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
+  }
+
   getBootstrapProduct() {
     bootstrap(
       (bootstrap) => {
@@ -84,6 +107,7 @@ export default class Products extends React.Component {
           { selected: bootstrap, mode: 'add' },
           () => {
             this.fetchCategories();
+            this.fetchBrands();
             browserHistory.push(`#/products/${bootstrap.id}`);
           }
         );
@@ -109,7 +133,10 @@ export default class Products extends React.Component {
         (r) => {
           this.setState(
             { selected: r, mode: 'edit' },
-            () => this.fetchCategories()
+            () => {
+              this.fetchCategories();
+              this.fetchBrands();
+            }
           );
         },
         (e) => {
@@ -398,17 +425,31 @@ export default class Products extends React.Component {
                 />
               </div>
               <div class="form-group">
-                <label for="productCategories">Категории товара *</label>
+                <label for="productBrand">Брэнд *</label>
+                <Select2
+                  style={{ width: '100%' }}
+                  nestedOffset="0"
+                  multiple={false}
+                  placeholder="Укажите брэнд"
+                  onChange={(brandId) => {
+                    this.updateField('brandId', brandId);
+                  }}
+                  data={this.state.brands}
+                  value={[ this.state.selected.brandId ]}
+                />
+              </div>
+              <div class="form-group">
+                <label for="productCategory">Категория товара *</label>
                 <Select2
                   style={{ width: '100%' }}
                   nestedOffset="30"
                   multiple={false}
                   placeholder="Выберите одну или несколько категорий"
-                  onChange={(categories) => {
-                    this.updateField('categories', [ categories ]);
+                  onChange={(categoryId) => {
+                    this.updateField('categoryId', categoryId);
                   }}
                   data={this.state.categories}
-                  value={this.state.selected.categories}
+                  value={[ this.state.selected.categoryId ]}
                 />
               </div>
               <div class="form-group">
