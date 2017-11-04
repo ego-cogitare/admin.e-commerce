@@ -50,7 +50,7 @@ export default class LeftMenu extends React.Component {
                </Link>
              </li>
              <li>
-               <a href="#" onClick={logout} data-toggle="control-sidebar"><i class="fa fa-power-off"></i></a>
+               <a href="#" onClick={logout} data-toggle="control-sidebar"><i class="fa fa-sign-out"></i></a>
              </li>
            </ul>
          </div>

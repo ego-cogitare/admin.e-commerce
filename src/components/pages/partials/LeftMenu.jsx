@@ -40,19 +40,36 @@ export default class LeftMenu extends React.Component {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/orders" activeClassName="active">
-                    <i class="fa fa-circle-o"></i> <span>Заказы</span>
-                  </Link>
-                </li>
-                <li>
                   <Link to="/import" activeClassName="active">
                     <i class="fa fa-circle-o"></i> <span>Импорт</span>
                   </Link>
                 </li>
               </ul>
             </li>
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-shopping-cart"></i> <span>Заказы</span>
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                <li>
+                  <Link to="/orders" activeClassName="active">
+                    <i class="fa fa-circle-o"></i> <span>Список</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/order" activeClassName="active">
+                    <i class="fa fa-circle-o"></i> <span>Добавить</span>
+                  </Link>
+                </li>
+              </ul>
+            </li>
             <li>
-              <Link to="/static-pages" activeClassName="active"><i class="fa fa-file-code-o"></i> <span>Cтраницы</span></Link>
+              <Link to="/static-pages" activeClassName="active">
+                <i class="fa fa-file-code-o"></i> <span>Cтраницы</span>
+              </Link>
             </li>
           </ul>
         </section>

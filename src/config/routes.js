@@ -28,6 +28,10 @@ const routes = {
       path: 'orders',
       component: require('../components/pages/orders/Orders.jsx').default
     },
+    {
+      path: 'order(/:id)',
+      component: require('../components/pages/orders/Order.jsx').default
+    },
     // {
     //   path: '/',
     //   component: require('../components/pages/orders/Orders.jsx').default
