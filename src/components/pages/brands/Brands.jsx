@@ -213,7 +213,7 @@ export default class Brands extends React.Component {
     e.preventDefault();
 
     this.brandToDelete = brand;
-    
+
     dispatch('popup:show', {
       title: 'Подтвердите действие',
       body: this.deleteBrandDialog
@@ -261,7 +261,24 @@ export default class Brands extends React.Component {
         <div class="col-xs-12">
           <div class="box box-primary">
             <div class="box-header with-border">
-              <h3 class="box-title">Добавить новый брэнд</h3>
+              <h3 class="box-title">Список брэндов</h3>
+            </div>
+            <div class="box-body">
+              <div class="col-sm-12">
+                <div class="row">
+                  <PowerTable
+                    header={true}
+                    footer={true}
+                    columns={this.columns}
+                    data={this.state.brands}
+                  >Список продуктов пуст</PowerTable>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="box box-primary">
+            <div class="box-header with-border">
+              <h3 class="box-title">Брэнд</h3>
             </div>
             <div class="box-body">
               <div class="form-group">
@@ -299,24 +316,6 @@ export default class Brands extends React.Component {
                     <button type="submit" class="btn btn-default fa fa-file-o" onClick={this.resetBrandHandler.bind(this)}> Новый</button>
                   </div>
               }
-            </div>
-          </div>
-
-          <div class="box box-primary">
-            <div class="box-header with-border">
-              <h3 class="box-title">Список брэндов</h3>
-            </div>
-            <div class="box-body">
-              <div class="col-sm-12">
-                <div class="row">
-                  <PowerTable
-                    header={true}
-                    footer={true}
-                    columns={this.columns}
-                    data={this.state.brands}
-                  >Список продуктов пуст</PowerTable>
-                </div>
-              </div>
             </div>
           </div>
         </div>

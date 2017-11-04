@@ -40,6 +40,11 @@ export default class LeftMenu extends React.Component {
                   </Link>
                 </li>
                 <li>
+                  <Link to="/orders" activeClassName="active">
+                    <i class="fa fa-circle-o"></i> <span>Заказы</span>
+                  </Link>
+                </li>
+                <li>
                   <Link to="/import" activeClassName="active">
                     <i class="fa fa-circle-o"></i> <span>Импорт</span>
                   </Link>

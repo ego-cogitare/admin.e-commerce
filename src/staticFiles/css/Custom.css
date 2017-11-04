@@ -1,3 +1,8 @@
+.trumbowyg-dropdown {
+  width: auto;
+  max-width: 260px;
+}
+
 .brand-pictures .brand-picture {
   width: 100px;
   height: 100px;
