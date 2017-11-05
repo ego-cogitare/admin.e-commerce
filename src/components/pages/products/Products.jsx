@@ -201,11 +201,13 @@ export default class Products extends React.Component {
       />;
 
     this.deleteProductDialog = <DeleteProductDialog onDeleteClick={this._deleteProduct.bind(this)} />;
-    this.relativeProductsDialog = <RelativeProductsDialog
-      onSelectClick={this._setRelativeProducts.bind(this)}
-      selected={this.state.selected.relatedProducts.map(({ id }) => id).concat([this.state.selected.id])}
-      style={{ width:1200 }}
-    />;
+    this.relativeProductsDialog =
+      <RelativeProductsDialog
+        manageControll={['checkbox']}
+        onSelectClick={this._setRelativeProducts.bind(this)}
+        selected={this.state.selected.relatedProducts.map(({ id }) => id).concat([this.state.selected.id])}
+        style={{ width:1200 }}
+      />;
   }
 
   _selectRelativeProducts() {
@@ -542,7 +544,7 @@ export default class Products extends React.Component {
                   <ProductsList
                     className="related-products no-border no-padding"
                     products={this.state.selected.relatedProducts}
-                    manageControll="trash"
+                    manageControll={['trash']}
                     onControllClick={(productId) => {
                       const selected = this.state.selected;
                       selected.relatedProducts = selected.relatedProducts.filter(({ id }) => id !== productId);

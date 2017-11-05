@@ -79,11 +79,13 @@ export default class Orders extends React.Component {
   }
 
   initDialogs() {
-    this.selectProductDialog = <SelectProductDialog
-      onSelectClick={this.addOrderProduct.bind(this)}
-      selected={this.state.products.map(({ id }) => id)}
-      style={{ width:1200 }}
-    />;
+    this.selectProductDialog =
+      <SelectProductDialog
+        manageControll={['checkbox']}
+        onSelectClick={this.addOrderProduct.bind(this)}
+        selected={this.state.products.map(({ id }) => id)}
+        style={{ width:1200 }}
+      />;
   }
 
   render() {
@@ -103,9 +105,12 @@ export default class Orders extends React.Component {
                   <ProductsList
                     className="related-products no-border no-padding"
                     products={this.state.products}
-                    manageControll="trash"
-                    onControllClick={(productId) => {
-                      this.setState({
+                    manageControll={['trash', 'number']}
+                    onControllClick={(productId, controllType) => {
+                      console.log(this.state, productId, controllType);
+
+                      // If remove product controll clicked
+                      (controllType === 'trash') && this.setState({
                         products: this.state.products.filter(({ id }) => id !== productId)
                       });
                     }}

@@ -35,6 +35,7 @@ export default class RelativeProductsDialog extends React.Component {
     if (categories.length === 0) {
       return ;
     }
+
     const params = (categories[0].id === '') ?
       {} :
       {
@@ -45,6 +46,7 @@ export default class RelativeProductsDialog extends React.Component {
           title: 1
         }
       };
+
     list(params,
       (products) => {
         // Only not yet added products
@@ -79,18 +81,16 @@ export default class RelativeProductsDialog extends React.Component {
             />
             <span class="help-block">* зажмите клавишу Сntrl для выбора нескольких категорий.</span>
           </div>
-
           <div class="form-group">
             <label>Доступные товары для добавления ({this.state.products.length} шт.)</label>
             <ProductsList
               className="related-products no-border no-padding"
               products={this.state.products}
-              manageControll="checkbox"
+              manageControll={this.props.manageControll}
             >
               <div class="text-center">Нет доступных для отображения товаров</div>
             </ProductsList>
           </div>
-
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" onClick={() => dispatch('popup:close')}>Отмена</button>

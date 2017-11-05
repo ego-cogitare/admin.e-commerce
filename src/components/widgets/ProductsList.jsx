@@ -16,7 +16,7 @@ export default class ProductsList extends React.Component {
     this.setState({ products });
   }
 
-  onProductSelect(productId, e) {
+  onProductSelect(productId, controllType, e) {
     this.setState({
       products: this.state.products.map((product) => {
         if (product.id === productId) {
@@ -27,38 +27,65 @@ export default class ProductsList extends React.Component {
     });
   }
 
-  onProductDelete(productId, e) {
-    this.setState({
-      products: this.state.products.filter(({ id }) => id !== productId)
-    });
-    this.props.onControllClick(productId, e);
+  onProductDelete(productId, controllType, e) {
+    this.setState(
+      { products: this.state.products.filter(({ id }) => id !== productId) },
+      () => this.props.onControllClick(productId, controllType, e)
+    );
   }
 
+  onChangeProductCount(product, controllType, e) {
+    Object.assign(product, { count: Number(e.target.value) })
+    this.setState(
+      { products: this.state.products },
+      () => this.props.onControllClick(product.id, controllType, e)
+    );
+  }
+
+
   _getControll(productId) {
-    switch (this.props.manageControll) {
-      case 'checkbox':
-        return (
-          <Checkbox
-            checkboxClass="icheckbox_square-blue"
-            increaseArea="20%"
-            onChange={this.onProductSelect.bind(this, productId)}
-          />
-        );
-      break;
 
-      case 'trash':
-        return (
-          <div
-            onClick={this.onProductDelete.bind(this, productId)}
-            class="btn btn-sm btn-primary fa fa-trash"
-          />
-        );
-      break;
+    return (this.props.manageControll || []).map((controllType) => {
+      let controll = null;
 
-      default:
-        return null;
-      break;
-    }
+      switch (controllType) {
+        case 'checkbox':
+          controll =
+            <Checkbox
+              checkboxClass="icheckbox_square-blue"
+              increaseArea="20%"
+              onChange={this.onProductSelect.bind(this, productId, controllType)}
+            />;
+        break;
+
+        case 'trash':
+          controll =
+            <div
+              onClick={this.onProductDelete.bind(this, productId, controllType)}
+              class="btn btn-sm btn-primary fa fa-trash"
+            />;
+        break;
+
+        case 'number':
+          const product = this.state.products.find(({ id }) => id === productId);
+
+          controll =
+            <input
+              class="form-control input-sm"
+              type="number"
+              onChange={this.onChangeProductCount.bind(this, product, controllType)}
+              defaultValue={product.count || 1}
+              min="0"
+              max="999"
+              style={{ width:59 }}
+            />;
+        break;
+      }
+
+      return (
+        <div class="pull-right" key={controllType.concat(productId)}>{controll}</div>
+      );
+    });
   }
 
   render() {
@@ -76,9 +103,7 @@ export default class ProductsList extends React.Component {
                   </div>
                   <div class="media-body">
                     <div class="clearfix">
-                      <div class="pull-right">
-                        {this._getControll(id)}
-                      </div>
+                      {this._getControll(id)}
                       <h4 style={{ marginTop:0 }}>{title}</h4>
                       <p>{description}</p>
                     </div>
