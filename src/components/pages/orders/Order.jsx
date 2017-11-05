@@ -1,9 +1,10 @@
 import React from 'react';
 import SelectProductDialog from '../products/popups/RelativeProductsDialog.jsx';
 import ProductsList from '../../widgets/ProductsList.jsx';
+import { browserHistory } from 'react-router';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
-import { get } from '../../../actions/Order';
+import { get, add, update } from '../../../actions/Order';
 
 export default class Orders extends React.Component {
 
@@ -25,8 +26,9 @@ export default class Orders extends React.Component {
     });
 
     if (this.props.params.id) {
-      get({ id: this.props.params.id },
-        (order) => this.setState({ order, mode: 'edit' }),
+      get(
+        { id: this.props.params.id },
+        (order) => this.setState({ order, products: order.products, mode: 'edit' }),
         (e) => {
           dispatch('notification:throw', {
             type: 'danger',
@@ -46,28 +48,83 @@ export default class Orders extends React.Component {
 
   addOrderHandler() {
     const order = Object.assign(
-      { productIds: this.state.products.map(({ id }) => id) },
+      { products: this.state.products.map(({ id, count }) => ({ id, count})) },
       { ...this.state.order }
     );
-    console.log(order);
+
+    add(
+      order,
+      ({ id }) => {
+        this.state.order.id = id;
+        this.setState({
+            mode: 'edit',
+            order: this.state.order
+          },
+          () => {
+            browserHistory.push(`#/order/${id}`);
+
+            dispatch('notification:throw', {
+              type: 'success',
+              title: 'Успех',
+              message: 'Заказ успешно добавлен'
+            });
+          }
+        );
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
   }
 
   updateOrderHandler() {
+    const order = Object.assign(
+      { ...this.state.order },
+      { products: this.state.products
+          .map(({ id, count }) => ({ id, count}))
+          .filter(({ count }) => count > 0)
+      },
+    );
 
+    update(
+      order,
+      () => {
+        dispatch('notification:throw', {
+          type: 'success',
+          title: 'Успех',
+          message: 'Заказ успешно сохранен'
+        });
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
   }
 
   resetOrderHandler() {
     this.setState({
-      mode: 'add',
-      products: [],
-      order: {}
-    });
+        mode: 'add',
+        products: [],
+        order: {}
+      },
+      () => browserHistory.push(`#/order`)
+    );
   }
 
   addOrderProduct(products, e) {
     dispatch('popup:close');
     this.setState({
-      products: this.state.products.concat(products)
+      products: this.state.products.concat(
+        products.map((product) => Object.assign(product, { count: 1 }))
+      )
     });
   }
 
@@ -107,8 +164,6 @@ export default class Orders extends React.Component {
                     products={this.state.products}
                     manageControll={['trash', 'number']}
                     onControllClick={(productId, controllType) => {
-                      console.log(this.state, productId, controllType);
-
                       // If remove product controll clicked
                       (controllType === 'trash') && this.setState({
                         products: this.state.products.filter(({ id }) => id !== productId)
