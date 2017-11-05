@@ -4,7 +4,7 @@ import PowerTable from '../../widgets/PowerTable.jsx';
 import { Link } from 'react-router';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
-import { list, get, add, update, remove } from '../../../actions/Order';
+import { list, remove } from '../../../actions/Order';
 
 export default class Orders extends React.Component {
 
@@ -35,8 +35,15 @@ export default class Orders extends React.Component {
 
   get columns() {
     return [
-      { name: 'product', display: 'Товар', sort: true },
+      { name: 'product', display: 'Товар', sort: true, renderer: (row) => {
+        return row.products
+          .map(({ title, count }) => `${title} (${count} шт.)`)
+          .join(', ')
+          //.concat('…');
+      } },
+      { name: 'state', display: 'Статус', sort: true },
       { name: 'firstName', display: 'Имя', sort: true },
+      { name: 'phone', display: 'Телефон', sort: true },
       { name: 'edit', display: 'Править', sort: false, width: 10, renderer: (row) => {
         return (
           <Link to={"order/" + row.id}><span class="fa fa-edit"></span></Link>

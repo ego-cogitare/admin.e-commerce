@@ -13,11 +13,19 @@ const routes = {
       component: require('../components/pages/categories/Categories.jsx').default
     },
     {
-      path: 'products(/:id)',
+      path: 'product(/:id)',
+      component: require('../components/pages/products/Product.jsx').default
+    },
+    {
+      path: 'products',
       component: require('../components/pages/products/Products.jsx').default
     },
     {
-      path: 'static-pages(/:id)',
+      path: 'static-page(/:id)',
+      component: require('../components/pages/staticPages/StaticPage.jsx').default
+    },
+    {
+      path: 'static-pages',
       component: require('../components/pages/staticPages/StaticPages.jsx').default
     },
     {

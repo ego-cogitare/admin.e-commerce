@@ -36,7 +36,12 @@ export default class LeftMenu extends React.Component {
               <ul class="treeview-menu">
                 <li>
                   <Link to="/products" activeClassName="active">
-                    <i class="fa fa-circle-o"></i> <span>Каталог</span>
+                    <i class="fa fa-circle-o"></i> <span>Управление</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/product" activeClassName="active">
+                    <i class="fa fa-circle-o"></i> <span>Добавить</span>
                   </Link>
                 </li>
                 <li>
@@ -56,7 +61,7 @@ export default class LeftMenu extends React.Component {
               <ul class="treeview-menu">
                 <li>
                   <Link to="/orders" activeClassName="active">
-                    <i class="fa fa-circle-o"></i> <span>Список</span>
+                    <i class="fa fa-circle-o"></i> <span>Управление</span>
                   </Link>
                 </li>
                 <li>
@@ -66,10 +71,25 @@ export default class LeftMenu extends React.Component {
                 </li>
               </ul>
             </li>
-            <li>
-              <Link to="/static-pages" activeClassName="active">
+            <li class="treeview">
+              <a href="#">
                 <i class="fa fa-file-code-o"></i> <span>Cтраницы</span>
-              </Link>
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                <li>
+                  <Link to="/static-pages" activeClassName="active">
+                    <i class="fa fa-circle-o"></i> <span>Управление</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/static-page" activeClassName="active">
+                    <i class="fa fa-circle-o"></i> <span>Добавить</span>
+                  </Link>
+                </li>
+              </ul>
             </li>
           </ul>
         </section>

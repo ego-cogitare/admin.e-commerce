@@ -6,7 +6,7 @@ import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
 import { get, add, update } from '../../../actions/Order';
 
-export default class Orders extends React.Component {
+export default class Order extends React.Component {
 
   constructor(props) {
     super(props);
@@ -157,7 +157,7 @@ export default class Orders extends React.Component {
             </div>
             <div class="box-body">
               <div class="form-group">
-                <label>Товары</label>
+                <label>Товары *</label>
                 <div class="related-products no-border no-padding">
                   <ProductsList
                     className="related-products no-border no-padding"
@@ -221,6 +221,17 @@ export default class Orders extends React.Component {
                   onChange={(e) => this.updateField('email', e.target.value)}
                   value={this.state.order.email || ''}
                   placeholder="Введите e-mail покупателя"
+                />
+              </div>
+              <div class="form-group">
+                <label for="orderComment">Комментарий</label>
+                <textarea
+                  ref="orderComment"
+                  class="form-control"
+                  id="orderComment"
+                  onChange={(e) => this.updateField('comment', e.target.value)}
+                  value={this.state.order.comment || ''}
+                  placeholder="Введите комментарий к заказу"
                 />
               </div>
             </div>

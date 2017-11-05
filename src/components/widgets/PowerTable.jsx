@@ -70,10 +70,16 @@ export default class PowerTable extends React.Component {
                 {
                   this.state.columns.map(({ name, renderer }) => {
                     if (typeof renderer === 'function') {
-                      return (<td key={row.id.concat(name)}>{renderer(row)}</td>);
+                      return (
+                        <td key={row.id.concat(name)}>
+                          { renderer(row) }
+                        </td>
+                      );
                     }
                     else {
-                      return (<td key={row.id.concat(name)}>{row[name]}</td>);
+                      return (
+                        <td key={row.id.concat(name)}>{row[name]}</td>
+                      );
                     }
                   })
                 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router';
 import { Checkbox } from 'react-icheck';
 import { buildUrl } from '../../core/helpers/Utils';
 
@@ -104,7 +105,9 @@ export default class ProductsList extends React.Component {
                   <div class="media-body">
                     <div class="clearfix">
                       {this._getControll(id)}
-                      <h4 style={{ marginTop:0 }}>{title}</h4>
+                      <h4 style={{ marginTop:0 }}>
+                        <Link target="_blank" to={`product/${id}`}>{title}</Link>
+                      </h4>
                       <p>{description}</p>
                     </div>
                   </div>

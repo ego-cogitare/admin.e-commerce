@@ -37,7 +37,7 @@ export default class Select2 extends React.Component {
         const selected = (this.state.value || [])
           .map((id) => this._getOptionById(id))
           .filter((id) => id);
-console.log(selected)
+          
         callback(selected);
       }
     })
