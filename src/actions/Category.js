@@ -9,6 +9,10 @@ export function tree(params, success, error) {
     request(`/category/tree`, params, 'get', success, error);
 };
 
+export function treeUpdate(params, success, error) {
+    request(`/category/tree`, params, 'post', success, error);
+};
+
 export function add(data, success, error) {
     request(`/category/add`, data, 'post', success, error);
 };

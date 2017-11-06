@@ -28,6 +28,7 @@ export default class Select2 extends React.Component {
   }
 
   _initSelect() {
+    console.log(this.state.data)
     $(this.refs.select).select2({
       data: this.state.data,
       templateResult: (node) => {
@@ -37,7 +38,7 @@ export default class Select2 extends React.Component {
         const selected = (this.state.value || [])
           .map((id) => this._getOptionById(id))
           .filter((id) => id);
-          
+
         callback(selected);
       }
     })

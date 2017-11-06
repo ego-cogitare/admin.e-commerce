@@ -68,3 +68,8 @@
   height: 60px;
   object-fit: cover;
 }
+
+.category-tree .active {
+  color: #c00;
+  font-weight: bold;
+}

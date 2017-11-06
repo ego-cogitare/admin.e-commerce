@@ -34,11 +34,11 @@ export default class CategoriesTree extends React.Component {
       Object.assign(category, { level: depth })
     );
 
-    if (!category.categories) {
+    if (!category.children) {
       return branch;
     }
 
-    category.categories.forEach(
+    category.children.forEach(
       (category) => this.categoryBranch(category, branch, depth + 1)
     );
 

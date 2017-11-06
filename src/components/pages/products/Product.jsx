@@ -150,15 +150,18 @@ export default class Product extends React.Component {
   }
 
   categoryBranch(category, branch = [], depth = 0) {
-    branch.push(
-      Object.assign(category, { level: depth, text: category.title })
-    );
+    branch.push({
+      id: category.id,
+      title: category.title,
+      text: category.title,
+      level: depth
+    });
 
-    if (!category.categories) {
+    if (!category.children) {
       return branch;
     }
 
-    category.categories.forEach(
+    category.children.forEach(
       (category) => this.categoryBranch(category, branch, depth + 1)
     );
 

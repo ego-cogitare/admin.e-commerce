@@ -1,5 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router';
+import classNames from 'classnames';
+import Tree from 'react-ui-tree';
+import 'react-ui-tree/dist/react-ui-tree.css';
 import DeleteCategoryDialog from './popups/DeleteCategoryDialog.jsx';
 import Settings from '../../../core/helpers/Settings';
 import CategoriesTree from '../../widgets/CategoriesTree.jsx';
@@ -7,7 +10,7 @@ import Discount from '../../widgets/Discount.jsx';
 import { Checkbox, Radio, RadioGroup } from 'react-icheck';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
-import { tree, get, add, update, remove } from '../../../actions/Category';
+import { tree, treeUpdate, get, add, update, remove } from '../../../actions/Category';
 
 export default class Categories extends React.Component {
 
@@ -31,7 +34,7 @@ export default class Categories extends React.Component {
       selected: JSON.parse(JSON.stringify(this.emptyCategory)),
 
       // Categories list
-      categories: [],
+      categories: {},
     };
   }
 
@@ -40,13 +43,18 @@ export default class Categories extends React.Component {
   }
 
   _loadCategoryTree() {
-    tree({},
+    tree(
+      {},
       (categories) => this.setState({
-        categories: [{
-          id: "",
-          title: '(Нет)',
-          className: 'text-gray'
-        }].concat(categories)
+        categories: Object.assign(
+          JSON.parse(JSON.stringify(this.emptyCategory)),
+          {
+            id: '',
+            module: ' (Корневая)',
+            className: 'fa fa-home',
+            children: categories
+          }
+        )
       }),
       (e) => {
         dispatch('notification:throw', {
@@ -114,17 +122,14 @@ export default class Categories extends React.Component {
     this.state.selected.description = this.refs.categoryDescription.value;
 
     add(
-      Object.assign(
-        { ...this.state.selected },
-        { parrentId: this.refs.categoryTree.selected.id }
-      ),
+      { ...this.state.selected },
       (r) => {
         this.state.selected.id = r.id;
-        this.state.selected.parrentId = r.parrentId;
+        // this.state.selected.parrentId = r.parrentId;
         this.setState({
             mode: 'edit',
             selected: this.state.selected,
-            categories: this.state.categories.concat(this.state.selected)
+            // categories: this.state.categories.concat(this.state.selected)
           },
           () => onSuccess(r)
         );
@@ -220,20 +225,70 @@ export default class Categories extends React.Component {
   }
 
   resetCategoryHandler() {
+    const leaf = Object.assign(
+      JSON.parse(JSON.stringify(this.emptyCategory)),
+      {
+        module: 'Новая категория',
+        title: 'Новая категория',
+        className: 'font-italic text-gray',
+        parrentId: this.state.selected.id
+      }
+    );
+
+    this.state.selected.children.push(leaf);
+
     this.setState({
       mode: 'add',
-      selected: JSON.parse(JSON.stringify(this.emptyCategory)),
+      selected: leaf
     });
   }
 
-  onCategorySelect(category) {
-    if (category.id === "") {
-      return this.resetCategoryHandler();
+  onBranchSelect(branch) {
+    if (branch.id === "") {
+      // return this.resetCategoryHandler();
     }
-    this.setState({
-      selected: category,
-      mode: 'edit'
-    });
+    this.setState({ selected: branch, mode: 'edit' });
+  }
+
+  renderNode(node) {
+    return (
+      <div
+        class={classNames({ active: node === this.state.selected }, node.className )}
+        onClick={this.onBranchSelect.bind(this, node)}
+      >
+        {node.module}
+      </div>
+    );
+  }
+
+  fetchBranch(tree, parrentId) {
+    if (tree.children.length > 0) {
+      tree.children.map(
+        (branch) => {
+          return ((tree) => {
+            Object.assign(branch, { parrentId: tree.id });
+            this.fetchBranch(branch, tree);
+          })(tree);
+        }
+      );
+    }
+  }
+
+  handleChange(tree) {
+    // Normalize parrent ids
+    this.fetchBranch(tree, "");
+
+    treeUpdate(
+      { tree: JSON.stringify(tree) },
+      (tree) => {},
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
   }
 
   render() {
@@ -247,16 +302,13 @@ export default class Categories extends React.Component {
               <h3 class="box-title">Категории</h3>
             </div>
             <div class="box-body">
-              <div class="form-group">
+              <div class="form-group category-tree">
                 <label>Дерево категорий</label>
-                <CategoriesTree
-                  multiple={false}
-                  ref="categoryTree"
-                  className="form-control"
-                  categories={this.state.categories}
-                  size="12"
-                  categoryIndent="15"
-                  onSelect={this.onCategorySelect.bind(this)}
+                <Tree
+                  paddingLeft={20}
+                  tree={this.state.categories}
+                  onChange={this.handleChange.bind(this)}
+                  renderNode={this.renderNode.bind(this)}
                 />
               </div>
               <div class="form-group">
