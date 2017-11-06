@@ -17,6 +17,8 @@ export default class Categories extends React.Component {
   constructor(props) {
     super(props);
 
+    this.categoryOrder = 0;
+
     this.emptyCategory = {
       id: null,
       parrentId: null,
@@ -261,13 +263,13 @@ export default class Categories extends React.Component {
     );
   }
 
-  fetchBranch(tree, parrentId) {
+  normalizeBranch(tree, parrentId) {
     if (tree.children.length > 0) {
       tree.children.map(
         (branch) => {
           return ((tree) => {
-            Object.assign(branch, { parrentId: tree.id });
-            this.fetchBranch(branch, tree);
+            Object.assign(branch, { parrentId: tree.id, order: this.categoryOrder++ });
+            this.normalizeBranch(branch, tree);
           })(tree);
         }
       );
@@ -276,7 +278,9 @@ export default class Categories extends React.Component {
 
   handleChange(tree) {
     // Normalize parrent ids
-    this.fetchBranch(tree, "");
+    this.normalizeBranch(tree, null);
+
+    console.log('tree', tree);
 
     treeUpdate(
       { tree: JSON.stringify(tree) },
