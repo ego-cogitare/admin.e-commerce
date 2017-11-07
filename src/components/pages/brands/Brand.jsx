@@ -87,7 +87,7 @@ export default class Brands extends React.Component {
     dispatch('popup:close');
 
     deletePicture(
-      this.pictureToDelete,
+      Object.assign(this.pictureToDelete, { brandId: this.state.selected.id }),
       (r) => {
         const selected = this.state.selected;
 
