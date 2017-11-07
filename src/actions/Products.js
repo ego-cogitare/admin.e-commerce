@@ -24,3 +24,7 @@ export function bootstrap(success, error) {
 export function addPicture({ product, picture }, success, error) {
     request(`/product/add-picture/${product.id}`, { picture }, 'post', success, error);
 };
+
+export function deletePicture(data, success, error) {
+    request(`/product/delete-picture`, data, 'post', success, error);
+};

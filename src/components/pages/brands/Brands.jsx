@@ -4,7 +4,7 @@ import PowerTable from '../../widgets/PowerTable.jsx';
 import DeleteBrandDialog from './popups/DeleteBrandDialog.jsx';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
-import { list } from '../../../actions/Brand';
+import { list, remove } from '../../../actions/Brand';
 
 export default class Brands extends React.Component {
 

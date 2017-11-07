@@ -63,12 +63,39 @@ export default class Orders extends React.Component {
     this.deleteOrderDialog = <DeleteOrderDialog onDeleteClick={this._deleteOrder.bind(this)} />;
   }
 
-  deleteOrderHandler() {
+  deleteOrderHandler(order) {
+    this.orderToDelete = order;
 
+    dispatch('popup:show', {
+      title: 'Подтвердите действие',
+      body: this.deleteOrderDialog
+    });
   }
 
   _deleteOrder() {
+    dispatch('popup:close');
 
+    remove(
+      this.orderToDelete,
+      (r) => {
+        this.setState({
+          mode: 'add',
+          orders: this.state.orders.filter(({id}) => id !== this.orderToDelete.id),
+        });
+        dispatch('notification:throw', {
+          type: 'warning',
+          title: 'Успех',
+          message: 'Заказ успешно удален'
+        });
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
   }
 
   render() {

@@ -3,6 +3,7 @@ import { browserHistory } from 'react-router';
 import { Link } from 'react-router';
 import { Checkbox } from 'react-icheck';
 import Settings from '../../../core/helpers/Settings';
+import DeletePictureDialog from './popups/DeletePictureDialog.jsx';
 import PicturesList from '../../widgets/PicturesList.jsx';
 import ProductsList from '../../widgets/ProductsList.jsx';
 import Select2 from '../../widgets/Select2.jsx';
@@ -13,7 +14,7 @@ import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
 import RelativeProductsDialog from './popups/RelativeProductsDialog.jsx';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
-import { bootstrap, get, update, remove, addPicture } from '../../../actions/Products';
+import { bootstrap, get, update, remove, addPicture, deletePicture } from '../../../actions/Products';
 import { tree as categoryTree } from '../../../actions/Category';
 import { list as brandList } from '../../../actions/Brand';
 
@@ -192,6 +193,11 @@ export default class Product extends React.Component {
         selected={this.state.selected.relatedProducts.map(({ id }) => id).concat([this.state.selected.id])}
         style={{ width:1200 }}
       />;
+
+    this.deletePictureDialog =
+      <DeletePictureDialog
+        onDeleteClick={this._doDeletePicture.bind(this)}
+      />;
   }
 
   _selectRelativeProducts() {
@@ -223,6 +229,51 @@ export default class Product extends React.Component {
       title: 'Перетяните и бросьте файл для загрузки',
       body: this.uploadFileDialog
     });
+  }
+
+  _deletePicture(picture) {
+    this.pictureToDelete = picture;
+
+    dispatch('popup:show', {
+      title: 'Подтвердите действие',
+      body: this.deletePictureDialog
+    });
+  }
+
+  _doDeletePicture() {
+    dispatch('popup:close');
+
+    deletePicture(
+      Object.assign(this.pictureToDelete, { productId: this.state.selected.id }),
+      (r) => {
+        const selected = this.state.selected;
+
+        // Delete brand picture from pictures list
+        selected.pictures = selected.pictures.filter(
+          ({ id }) => id !== this.pictureToDelete.id
+        );
+
+        // If brand active picture deleted
+        if (selected.pictureId === this.pictureToDelete.id) {
+          selected.pictureId = null;
+        }
+
+        this.setState({ selected });
+
+        dispatch('notification:throw', {
+          type: 'success',
+          title: 'Успех',
+          message: 'Изображение успешно удалено'
+        });
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
   }
 
   updateProductHandler(e) {
@@ -353,6 +404,8 @@ export default class Product extends React.Component {
                   onSelect={this.setProductPictureHandler.bind(this)}
                   addPictureControll={true}
                   addPictureCallback={this._uploadFiles.bind(this)}
+                  deletePictureControll={true}
+                  deletePictureCallback={this._deletePicture.bind(this)}
                 />
               </div>
               <div class="form-group">
