@@ -28,7 +28,6 @@ export default class Select2 extends React.Component {
   }
 
   _initSelect() {
-    console.log(this.state.data)
     $(this.refs.select).select2({
       data: this.state.data,
       templateResult: (node) => {

@@ -171,8 +171,8 @@ export default class Order extends React.Component {
                     }}
                   />
                 </div>
-                <div class="media brand-pictures">
-                  <div class="brand-picture empty" onClick={this.selectProductDialogOpen.bind(this)} style={{ width:60, height:60, lineHeight:'58px' }}>+</div>
+                <div class="media pictures-list">
+                  <div class="picture empty" onClick={this.selectProductDialogOpen.bind(this)} style={{ width:60, height:60, lineHeight:'58px' }}>+</div>
                 </div>
               </div>
               <div class="form-group">

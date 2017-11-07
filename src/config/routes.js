@@ -5,7 +5,11 @@ const routes = {
   default: [
     // Global (Admin) components
     {
-      path: 'brands(/:id)',
+      path: 'brand(/:id)',
+      component: require('../components/pages/brands/Brand.jsx').default
+    },
+    {
+      path: 'brands',
       component: require('../components/pages/brands/Brands.jsx').default
     },
     {

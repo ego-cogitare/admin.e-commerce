@@ -345,8 +345,8 @@ export default class Product extends React.Component {
               <div class="form-group">
                 <label>Изображения товара *</label>
                 <PicturesList
-                  className="brand-pictures"
-                  pictureClassName="brand-picture"
+                  className="pictures-list"
+                  pictureClassName="picture"
                   pictureActiveClassName="selected"
                   pictures={this.state.selected.pictures}
                   activePictureId={this.state.selected.pictureId}
@@ -440,20 +440,20 @@ export default class Product extends React.Component {
                     }}
                   />
                 </div>
-                <div class="media brand-pictures">
-                  <div class="brand-picture empty" onClick={this._selectRelativeProducts.bind(this)} style={{ width:60, height:60, lineHeight:'58px' }}>+</div>
+                <div class="media pictures-list">
+                  <div class="picture empty" onClick={this._selectRelativeProducts.bind(this)} style={{ width:60, height:60, lineHeight:'58px' }}>+</div>
                 </div>
               </div>
             </div>
             <div class="box-footer">
-              {
-                (this.state.mode === 'add') ?
-                  <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateProductHandler.bind(this)}> Добавить</button> :
-                  <div class="btn-group">
-                    <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateProductHandler.bind(this)}> Сохранить</button>
-                    <button type="submit" class="btn btn-default fa fa-file-o" onClick={this.getBootstrapProduct.bind(this)}> Новый</button>
-                  </div>
-              }
+            {
+              (this.state.mode === 'add') ?
+                <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateProductHandler.bind(this)}> Добавить</button> :
+                <div class="btn-group">
+                  <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateProductHandler.bind(this)}> Сохранить</button>
+                  <button type="submit" class="btn btn-default fa fa-file-o" onClick={this.getBootstrapProduct.bind(this)}> Новый</button>
+                </div>
+            }
             </div>
           </div>
 

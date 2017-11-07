@@ -23,8 +23,25 @@ export default class LeftMenu extends React.Component {
             <li>
               <Link to="/categories" activeClassName="active"><i class="fa fa-th-large"></i> <span>Категории</span></Link>
             </li>
-            <li>
-              <Link to="/brands" activeClassName="active"><i class="fa fa-apple"></i> <span>Бренды</span></Link>
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-apple"></i> <span>Бренды</span>
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                <li>
+                  <Link to="/brands" activeClassName="active">
+                    <i class="fa fa-circle-o"></i> <span>Управление</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/brand" activeClassName="active">
+                    <i class="fa fa-circle-o"></i> <span>Создать</span>
+                  </Link>
+                </li>
+              </ul>
             </li>
             <li class="treeview">
               <a href="#">
@@ -41,7 +58,7 @@ export default class LeftMenu extends React.Component {
                 </li>
                 <li>
                   <Link to="/product" activeClassName="active">
-                    <i class="fa fa-circle-o"></i> <span>Добавить</span>
+                    <i class="fa fa-circle-o"></i> <span>Создать</span>
                   </Link>
                 </li>
                 <li>
@@ -66,7 +83,7 @@ export default class LeftMenu extends React.Component {
                 </li>
                 <li>
                   <Link to="/order" activeClassName="active">
-                    <i class="fa fa-circle-o"></i> <span>Добавить</span>
+                    <i class="fa fa-circle-o"></i> <span>Создать</span>
                   </Link>
                 </li>
               </ul>
@@ -86,7 +103,7 @@ export default class LeftMenu extends React.Component {
                 </li>
                 <li>
                   <Link to="/static-page" activeClassName="active">
-                    <i class="fa fa-circle-o"></i> <span>Добавить</span>
+                    <i class="fa fa-circle-o"></i> <span>Создать</span>
                   </Link>
                 </li>
               </ul>

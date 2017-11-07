@@ -21,6 +21,10 @@ export function addPicture(data, success, error) {
     request(`/brand/add-picture`, data, 'post', success, error);
 };
 
+export function deletePicture(data, success, error) {
+    request(`/brand/delete-picture`, data, 'post', success, error);
+};
+
 export function get({ id }, success, error) {
     request(`/brand/get/${id}`, {}, 'get', success, error);
 };
