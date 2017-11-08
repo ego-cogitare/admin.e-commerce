@@ -7,6 +7,7 @@ import '../../staticFiles/css/AdminLTE.css';
 import '../../staticFiles/css/custom-scrollbars.css';
 import '../../staticFiles/css/skins/skin-blue.min.css';
 import '../../staticFiles/css/Custom.css';
+import { dispatch } from '../../core/helpers/EventEmitter';
 import { get as bootstrap } from '../../actions/Settings';
 
 export default class Layout extends React.Component {

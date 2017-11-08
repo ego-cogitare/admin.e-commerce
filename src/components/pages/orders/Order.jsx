@@ -1,10 +1,13 @@
 import React from 'react';
 import SelectProductDialog from '../products/popups/RelativeProductsDialog.jsx';
 import ProductsList from '../../widgets/ProductsList.jsx';
+import Select2 from '../../widgets/Select2.jsx';
+import Settings from '../../../core/helpers/Settings';
 import { browserHistory } from 'react-router';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
 import { get, add, update } from '../../../actions/Order';
+import { get as getSettings } from '../../../actions/Settings';
 
 export default class Order extends React.Component {
 
@@ -15,6 +18,14 @@ export default class Order extends React.Component {
       mode: 'add',
 
       products: [],
+
+      states: JSON.parse(Settings.get('productStates'))
+        .map(( setting ) => {
+          return {
+            id: Object.keys(setting)[0],
+            text: Object.values(setting)[0]
+          };
+        }),
 
       order: {}
     };
@@ -221,6 +232,20 @@ export default class Order extends React.Component {
                   onChange={(e) => this.updateField('email', e.target.value)}
                   value={this.state.order.email || ''}
                   placeholder="Введите e-mail покупателя"
+                />
+              </div>
+              <div class="form-group">
+                <label for="productBrand">Текущее состояние заказа *</label>
+                <Select2
+                  style={{ width: '100%' }}
+                  nestedOffset="0"
+                  multiple={false}
+                  placeholder="Текущее состояние заказа"
+                  onChange={(stateId) => {
+                    this.updateField('stateId', stateId);
+                  }}
+                  data={this.state.states}
+                  value={[ this.state.order.stateId ]}
                 />
               </div>
               <div class="form-group">

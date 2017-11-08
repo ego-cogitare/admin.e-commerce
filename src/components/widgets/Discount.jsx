@@ -79,7 +79,7 @@ export default class Discount extends React.Component {
           value={this.state.discountValue}
           style={{ width: 60 }}
         />
-        <div class="input-group-btn pull-left">
+        <div class="input-group-btn">
           <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">{ this.state.discountLabel }
             <span class="fa fa-caret-down"></span>
           </button>

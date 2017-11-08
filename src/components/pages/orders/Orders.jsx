@@ -5,6 +5,7 @@ import { Link } from 'react-router';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
 import { list, remove } from '../../../actions/Order';
+import Settings from '../../../core/helpers/Settings';
 
 export default class Orders extends React.Component {
 
@@ -41,7 +42,10 @@ export default class Orders extends React.Component {
           .join(', ')
           //.concat('…');
       } },
-      { name: 'state', display: 'Статус', sort: true },
+      { name: 'stateId', display: 'Состояние', sort: true, renderer: ({ stateId }) => {
+        const states = JSON.parse(Settings.get('productStates'));
+        return Object.values(states.find((state) => Object.keys(state)[0] === stateId))[0];
+      } },
       { name: 'firstName', display: 'Имя', sort: true },
       { name: 'phone', display: 'Телефон', sort: true },
       { name: 'edit', display: 'Править', sort: false, width: 10, renderer: (row) => {

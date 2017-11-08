@@ -31,7 +31,7 @@ export default class Select2 extends React.Component {
     $(this.refs.select).select2({
       data: this.state.data,
       templateResult: (node) => {
-        return $(`<span style="padding-left:${(this.props.nestedOffset || 20) * (node.level || 0)}px">${node.title}</span>`);
+        return $(`<span style="padding-left:${(this.props.nestedOffset || 20) * (node.level || 0)}px">${node.text}</span>`);
       },
       initSelection : (element, callback) => {
         const selected = (this.state.value || [])

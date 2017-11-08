@@ -35,6 +35,7 @@ export default class Product extends React.Component {
       isNovelty: false,
       isAuction: false,
       isBestseller: false,
+      price: 0,
       discount: 0,
       discountType: '',
       isAvailable: true,
@@ -345,7 +346,7 @@ export default class Product extends React.Component {
             </div>
             <div class="box-body">
               <div class="form-group">
-                <label for="brandTitle">Название товара *</label>
+                <label for="productTitle">Название товара *</label>
                 <input
                   type="text"
                   class="form-control"
@@ -441,7 +442,23 @@ export default class Product extends React.Component {
                   onChange={(e) => this.updateField('isBestseller', !e.target.checked)}
                 />
               </div>
-
+              <div class="form-group">
+                <label for="productPrice">Стоимость *</label>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="productPrice"
+                    onChange={(e) => this.updateField('price', e.target.value)}
+                    value={this.state.selected.price || ''}
+                    placeholder="0"
+                    style={{ width: 60 }}
+                  />
+                  <div class="input-group-addon" style={{ width:'auto' }}>
+                    <i>{Settings.get('currencyCode')}</i>
+                  </div>
+                </div>
+              </div>
               <div class="form-group">
                 <label for="productDiscount">Скидка</label>
                 <div class="input-group">
@@ -466,7 +483,6 @@ export default class Product extends React.Component {
                   />
                 </div>
               </div>
-
               <div class="form-group">
                 <label for="isAvailable">Есть в наличии</label>
                 <br/>
@@ -478,7 +494,6 @@ export default class Product extends React.Component {
                   onChange={(e) => this.updateField('isAvailable', !e.target.checked)}
                 />
               </div>
-
               <div class="form-group">
                 <label for="isAvailable">С этим товаром покупают</label>
                 <div class="related-products no-border no-padding">
