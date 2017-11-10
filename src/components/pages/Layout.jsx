@@ -1,29 +1,33 @@
 import React from 'react';
 import Partials from './partials';
-import Settings from '../../core/helpers/Settings';
 import UI from '../../core/ui';
+import Settings from '../../core/helpers/Settings';
+import { subscribe, dispatch } from '../../core/helpers/EventEmitter';
+import { get } from '../../actions/Settings';
 import '../../staticFiles/js/app';
 import '../../staticFiles/css/AdminLTE.css';
 import '../../staticFiles/css/custom-scrollbars.css';
 import '../../staticFiles/css/skins/skin-blue.min.css';
 import '../../staticFiles/css/Custom.css';
-import { dispatch } from '../../core/helpers/EventEmitter';
-import { get as bootstrap } from '../../actions/Settings';
 
 export default class Layout extends React.Component {
 
   // Get bootstrap settings
   componentDidMount() {
-    bootstrap(
-      (config) => Settings.apply(config),
-      (e) => {
-        dispatch('notification:throw', {
-          type: 'danger',
-          title: 'Ошибка',
-          message: e.responseJSON.error
-        });
-      }
-    );
+    subscribe('settings:sync', () => {
+      get(
+        (config) => Settings.apply(config),
+        (e) => {
+          dispatch('notification:throw', {
+            type: 'danger',
+            title: 'Ошибка',
+            message: e.responseJSON.error
+          });
+        }
+      );
+    });
+
+    dispatch('settings:sync');
   }
 
   render() {
