@@ -44,6 +44,14 @@ const routes = {
       path: 'order(/:id)',
       component: require('../components/pages/orders/Order.jsx').default
     },
+    {
+      path: 'blog-pages',
+      component: require('../components/pages/blog/BlogPages.jsx').default
+    },
+    {
+      path: 'blog-page(/:id)',
+      component: require('../components/pages/blog/BlogPage.jsx').default
+    },
     // {
     //   path: '/',
     //   component: require('../components/pages/orders/Orders.jsx').default

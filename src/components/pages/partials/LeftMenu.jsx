@@ -90,7 +90,7 @@ export default class LeftMenu extends React.Component {
             </li>
             <li class="treeview">
               <a href="#">
-                <i class="fa fa-file-code-o"></i> <span>Cтраницы</span>
+                <i class="fa fa-file-code-o"></i> <span>Статические страницы</span>
                 <span class="pull-right-container">
                   <i class="fa fa-angle-left pull-right"></i>
                 </span>
@@ -104,6 +104,26 @@ export default class LeftMenu extends React.Component {
                 <li>
                   <Link to="/static-page" activeClassName="active">
                     <i class="fa fa-circle-o"></i> <span>Создать</span>
+                  </Link>
+                </li>
+              </ul>
+            </li>
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-wordpress"></i> <span>Блог</span>
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                <li>
+                  <Link to="/blog-pages" activeClassName="active">
+                    <i class="fa fa-circle-o"></i> <span>Посты</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/blog-page" activeClassName="active">
+                    <i class="fa fa-circle-o"></i> <span>Новый пост</span>
                   </Link>
                 </li>
               </ul>
