@@ -13,7 +13,7 @@ import Discount from '../../widgets/Discount.jsx';
 import { Checkbox, Radio, RadioGroup } from 'react-icheck';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
-import { bootstrap, tree, treeUpdate, get, add, update, remove, addPicture, deletePicture } from '../../../actions/Category';
+import { bootstrap, tree, treeUpdate, get, update, remove, addPicture, deletePicture } from '../../../actions/Category';
 
 export default class Categories extends React.Component {
 
@@ -81,23 +81,25 @@ export default class Categories extends React.Component {
     // Get categories list
     this._loadCategoryTree();
 
-    if (this.props.params.id) {
-      get({ id: this.props.params.id },
-        (r) => {
-          this.setState({
-            selected: this._expandModel(r),
-            mode: 'edit'
-          });
-        },
-        (e) => {
-          dispatch('notification:throw', {
-            type: 'danger',
-            title: 'Ошибка',
-            message: e.responseJSON.error
-          });
-        }
-      );
-    }
+    // Get bootsrap category to edit
+    this.getBootstrapCategory();
+  }
+
+  getBootstrapCategory(onSuccess) {
+    bootstrap(
+      (bootstrap) => {
+        this.setState({ selected: bootstrap, mode: 'add' },
+          () => typeof onSuccess === 'function' && onSuccess(bootstrap)
+        );
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
   }
 
   /**
@@ -129,8 +131,6 @@ export default class Categories extends React.Component {
   }
 
   addCategoryPictureHandler(category, picture) {
-    console.log(category, picture);
-    return ;
     addPicture({ category, picture },
       (r) => {
         const selected = this.state.selected;
@@ -164,51 +164,6 @@ export default class Categories extends React.Component {
     this.setState({ selected: this.state.selected });
   }
 
-  _addCategory(onSuccess = ()=>null, onFail = ()=>null) {
-    this.state.selected.title = this.refs.categoryTitle.value;
-    this.state.selected.description = this.refs.categoryDescription.value;
-
-    add(
-      { ...this.state.selected },
-      (r) => {
-        this.state.selected.id = r.id;
-        // this.state.selected.parrentId = r.parrentId;
-        this.setState({
-            mode: 'edit',
-            selected: this.state.selected,
-            // categories: this.state.categories.concat(this.state.selected)
-          },
-          () => onSuccess(r)
-        );
-      },
-      onFail
-    );
-  }
-
-  addCategoryHandler(e) {
-    e.preventDefault();
-
-    this._addCategory(
-      (category) => {
-        // Update category tree
-        this._loadCategoryTree();
-
-        dispatch('notification:throw', {
-          type: 'success',
-          title: 'Успех',
-          message: 'Категория успешно добавлена'
-        });
-      },
-      (e) => {
-        dispatch('notification:throw', {
-          type: 'danger',
-          title: 'Ошибка',
-          message: e.responseJSON.error
-        });
-      }
-    );
-  }
-
   setCategoryPictureHandler({ id }, e) {
     this.state.selected.pictureId = id;
     this.setState({ selected: this.state.selected });
@@ -234,7 +189,7 @@ export default class Categories extends React.Component {
     dispatch('popup:close');
 
     deletePicture(
-      Object.assign(this.pictureToDelete, { productId: this.state.selected.id }),
+      Object.assign(this.pictureToDelete, { categoryId: this.state.selected.id }),
       (r) => {
         const selected = this.state.selected;
 
@@ -274,8 +229,11 @@ export default class Categories extends React.Component {
         dispatch('notification:throw', {
           type: 'success',
           title: 'Успех',
-          message: 'Категория успешно обновлена'
+          message: 'Категория успешно сохранена'
         });
+        this.setState({ mode: 'edit' },
+          () => this._loadCategoryTree()
+        );
       },
       (e) => {
         dispatch('notification:throw', {
@@ -305,7 +263,7 @@ export default class Categories extends React.Component {
         this._loadCategoryTree();
 
         // Reset selected category
-        this.setState({ selected: JSON.parse(JSON.stringify(this.emptyCategory)) });
+        this.getBootstrapCategory();
 
         dispatch('notification:throw', {
           type: 'warning',
@@ -329,22 +287,37 @@ export default class Categories extends React.Component {
   }
 
   resetCategoryHandler() {
-    const leaf = Object.assign(
-      JSON.parse(JSON.stringify(this.emptyCategory)),
-      {
-        module: 'Новая категория',
-        title: 'Новая категория',
-        className: 'font-italic text-gray',
-        parrentId: this.state.selected.id
+
+    bootstrap(
+      (leaf) => {
+        Object.assign(
+          leaf,
+          // JSON.parse(JSON.stringify(category)),
+          {
+            module: 'Новая категория',
+            title: 'Новая категория',
+            className: 'font-italic text-gray',
+            parrentId: this.state.selected.id,
+            children: []
+          }
+        );
+
+        // Insert new subcategory
+        this.state.selected.children.push(leaf);
+
+        this.setState({
+          mode: 'add',
+          selected: leaf
+        });
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
       }
     );
-
-    this.state.selected.children.push(leaf);
-
-    this.setState({
-      mode: 'add',
-      selected: leaf
-    });
   }
 
   onBranchSelect(branch) {
@@ -381,8 +354,6 @@ export default class Categories extends React.Component {
   handleChange(tree) {
     // Normalize parrent ids
     this.normalizeBranch(tree, null);
-
-    console.log('tree', tree);
 
     treeUpdate(
       { tree: JSON.stringify(tree) },
@@ -441,12 +412,12 @@ export default class Categories extends React.Component {
                 />
               </div>
               <div class="form-group">
-                <label>Изображение категории *</label>
+                <label>Изображение категории</label>
                 <PicturesList
                   className="pictures-list"
                   pictureClassName="picture"
                   pictureActiveClassName="selected"
-                  pictures={this.state.selected.pictures}
+                  pictures={this.state.selected.pictures || []}
                   activePictureId={this.state.selected.pictureId}
                   onSelect={this.setCategoryPictureHandler.bind(this)}
                   addPictureControll={true}
@@ -499,7 +470,7 @@ export default class Categories extends React.Component {
             <div class="box-footer">
               {
                 (this.state.mode === 'add') ?
-                  <button type="submit" class="btn btn-primary fa fa-check" onClick={this.addCategoryHandler.bind(this)}> Добавить</button> :
+                  <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateCategoryHandler.bind(this)}> Добавить</button> :
                   <div class="btn-group">
                     <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateCategoryHandler.bind(this)}> Сохранить</button>
                     <button type="submit" class="btn btn-default fa fa-file-o" onClick={this.resetCategoryHandler.bind(this)}> Новая</button>
