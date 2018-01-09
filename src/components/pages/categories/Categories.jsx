@@ -4,13 +4,16 @@ import classNames from 'classnames';
 import Tree from 'react-ui-tree';
 import 'react-ui-tree/dist/react-ui-tree.css';
 import DeleteCategoryDialog from './popups/DeleteCategoryDialog.jsx';
+import DeletePictureDialog from './popups/DeletePictureDialog.jsx';
+import PicturesList from '../../widgets/PicturesList.jsx';
+import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
 import Settings from '../../../core/helpers/Settings';
 import CategoriesTree from '../../widgets/CategoriesTree.jsx';
 import Discount from '../../widgets/Discount.jsx';
 import { Checkbox, Radio, RadioGroup } from 'react-icheck';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
-import { tree, treeUpdate, get, add, update, remove } from '../../../actions/Category';
+import { bootstrap, tree, treeUpdate, get, add, update, remove, addPicture, deletePicture } from '../../../actions/Category';
 
 export default class Categories extends React.Component {
 
@@ -22,6 +25,8 @@ export default class Categories extends React.Component {
     this.emptyCategory = {
       id: null,
       parrentId: null,
+      pictures: [],
+      pictureId: null,
       title: '',
       description: '',
       isHidden: false,
@@ -99,7 +104,47 @@ export default class Categories extends React.Component {
    * Event should be fired on component render
    */
   initDialogs() {
-    this.deleteСategoryDialog = <DeleteCategoryDialog onDeleteClick={this._deleteCategory.bind(this)} />;
+    this.deleteСategoryDialog =
+      <DeleteCategoryDialog
+        onDeleteClick={this._deleteCategory.bind(this)}
+      />;
+
+    this.uploadFileDialog =
+      <UploadFileDialog
+        path={config.staticFiles}
+        onUploadSuccess={(file) => this.addCategoryPictureHandler(this.state.selected, file)}
+        onUploadFail={(file) => {
+          dispatch('notification:throw', {
+            type: 'danger',
+            title: 'Ошибка',
+            message: JSON.stringify(file)
+          });
+        }}
+      />;
+
+    this.deletePictureDialog =
+      <DeletePictureDialog
+        onDeleteClick={this._doDeletePicture.bind(this)}
+      />;
+  }
+
+  addCategoryPictureHandler(category, picture) {
+    console.log(category, picture);
+    return ;
+    addPicture({ category, picture },
+      (r) => {
+        const selected = this.state.selected;
+        selected.pictures.push(picture);
+        this.setState({ selected });
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
   }
 
   selectCategoryHandler(selected) {
@@ -152,6 +197,63 @@ export default class Categories extends React.Component {
           type: 'success',
           title: 'Успех',
           message: 'Категория успешно добавлена'
+        });
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
+  }
+
+  setCategoryPictureHandler({ id }, e) {
+    this.state.selected.pictureId = id;
+    this.setState({ selected: this.state.selected });
+  }
+
+  _uploadFiles() {
+    dispatch('popup:show', {
+      title: 'Перетяните и бросьте файл для загрузки',
+      body: this.uploadFileDialog
+    });
+  }
+
+  _deletePicture(picture) {
+    this.pictureToDelete = picture;
+
+    dispatch('popup:show', {
+      title: 'Подтвердите действие',
+      body: this.deletePictureDialog
+    });
+  }
+
+  _doDeletePicture() {
+    dispatch('popup:close');
+
+    deletePicture(
+      Object.assign(this.pictureToDelete, { productId: this.state.selected.id }),
+      (r) => {
+        const selected = this.state.selected;
+
+        // Delete brand picture from pictures list
+        selected.pictures = selected.pictures.filter(
+          ({ id }) => id !== this.pictureToDelete.id
+        );
+
+        // If brand active picture deleted
+        if (selected.pictureId === this.pictureToDelete.id) {
+          selected.pictureId = null;
+        }
+
+        this.setState({ selected });
+
+        dispatch('notification:throw', {
+          type: 'success',
+          title: 'Успех',
+          message: 'Изображение успешно удалено'
         });
       },
       (e) => {
@@ -336,6 +438,21 @@ export default class Categories extends React.Component {
                   onChange={this.categoryDescriptionChange.bind(this)}
                   value={this.state.selected.description || ''}
                   placeholder="Введите описание категории"
+                />
+              </div>
+              <div class="form-group">
+                <label>Изображение категории *</label>
+                <PicturesList
+                  className="pictures-list"
+                  pictureClassName="picture"
+                  pictureActiveClassName="selected"
+                  pictures={this.state.selected.pictures}
+                  activePictureId={this.state.selected.pictureId}
+                  onSelect={this.setCategoryPictureHandler.bind(this)}
+                  addPictureControll={true}
+                  addPictureCallback={this._uploadFiles.bind(this)}
+                  deletePictureControll={true}
+                  deletePictureCallback={this._deletePicture.bind(this)}
                 />
               </div>
               <div class="form-group">
