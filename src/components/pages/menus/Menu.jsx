@@ -7,12 +7,14 @@ import Settings from '../../../core/helpers/Settings';
 import { Checkbox, Radio, RadioGroup } from 'react-icheck';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
-import { get } from '../../../actions/Menu';
+import { get, update, itemAdd, itemUpdate, itemRemove } from '../../../actions/Menu';
 
 export default class Menu extends React.Component {
 
   constructor(props) {
     super(props);
+
+    this.itemOrder = 0;
 
     this.emptyItem = {
       id: '',
@@ -26,16 +28,15 @@ export default class Menu extends React.Component {
 
     this.state = {
       mode: this.props.params.id ? 'edit' : 'add',
-      menu: {}
+      menu: {},
+      selected: {}
     };
   }
 
-  _loadCategoryTree() {
+  _loadMenuTree() {
     get(
-      { id: this.props.params.id },
-      (items) => this.setState({
-        menu: items
-      }, () => console.log(this.state)),
+      { menuId: this.props.params.id },
+      (menu) => this.setState({ menu }),
       (e) => {
         dispatch('notification:throw', {
           type: 'danger',
@@ -52,7 +53,7 @@ export default class Menu extends React.Component {
     });
 
     // Get categories list
-    this._loadCategoryTree();
+    this._loadMenuTree();
   }
 
   /**
@@ -65,29 +66,71 @@ export default class Menu extends React.Component {
     //   />;
   }
 
-  addMenuHandler() {}
+  addMenuHandler(e) {
+    e.preventDefault();
 
-  updateMenuHandler() {}
+    itemAdd(
+      Object.assign({ ...this.state.selected }, { menuId: this.props.params.id }),
+      (menu) => {
+        dispatch('notification:throw', {
+          type: 'success',
+          title: 'Успех',
+          message: 'Пункт меню добавлен'
+        });
+        this.setState({ mode: 'edit' },
+          () => this._loadMenuTree()
+        );
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
+  }
 
-  deleteMenuHandler() {}
+  updateMenuHandler() {
 
-  resetMenuHandler() {}
+  }
+
+  deleteMenuHandler() {
+
+  }
+
+  insertMenuHandler() {
+    const item = Object.assign(
+      { ...this.emptyItem },
+      {
+        module: 'Пункт меню',
+        title: 'Пункт меню',
+        className: 'font-italic text-gray',
+        parrentId: this.state.selected.id,
+        isNew: true,
+        children: []
+      }
+    );
+
+    this.state.selected.children.push(item);
+    this.setState({ mode: 'add', selected: item });
+  }
 
   handleChange(tree) {
     // Normalize parrent ids
     this.normalizeBranch(tree, null);
 
-    // treeUpdate(
-    //   { tree: JSON.stringify(tree) },
-    //   (tree) => {},
-    //   (e) => {
-    //     dispatch('notification:throw', {
-    //       type: 'danger',
-    //       title: 'Ошибка',
-    //       message: e.responseJSON.error
-    //     });
-    //   }
-    // );
+    update(
+      { tree: JSON.stringify(tree), menuId: this.props.params.id },
+      (tree) => {},
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
   }
 
   normalizeBranch(tree, parrentId) {
@@ -95,7 +138,7 @@ export default class Menu extends React.Component {
       tree.children.map(
         (branch) => {
           return ((tree) => {
-            Object.assign(branch, { parrentId: tree.id, order: this.categoryOrder++ });
+            Object.assign(branch, { parrentId: tree.id, order: this.itemOrder++ });
             this.normalizeBranch(branch, tree);
           })(tree);
         }
@@ -104,10 +147,7 @@ export default class Menu extends React.Component {
   }
 
   onItemSelect(item) {
-    if (item.id === "") {
-      // return this.resetCategoryHandler();
-    }
-    this.setState({ selected: item, mode: 'edit' });
+    this.setState({ selected: item, mode: item.isNew ? 'add' : 'edit' });
   }
 
   renderNode(node) {
@@ -116,9 +156,20 @@ export default class Menu extends React.Component {
         class={classNames({ active: node === this.state.selected }, node.className )}
         onClick={this.onItemSelect.bind(this, node)}
       >
-        {node.module}
+        { node.module }
       </div>
     );
+  }
+
+  itemTitleChange(e) {
+    this.state.selected.title =
+    this.state.selected.module = e.target.value;
+    this.setState({ selected: this.state.selected });
+  }
+
+  itemLinkChange(e) {
+    this.state.selected.link = e.target.value;
+    this.setState({ selected: this.state.selected });
   }
 
   render() {
@@ -140,15 +191,37 @@ export default class Menu extends React.Component {
                   renderNode={this.renderNode.bind(this)}
                 />
               </div>
+              <div class="form-group">
+                <label for="itemTitle">Название пункта меню *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="itemTitle"
+                  onChange={this.itemTitleChange.bind(this)}
+                  value={this.state.selected.title || ''}
+                  placeholder="Введите название пункта меню"
+                />
+              </div>
+              <div class="form-group">
+                <label for="itemTitle">Ссылка *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="itemLink"
+                  onChange={this.itemLinkChange.bind(this)}
+                  value={this.state.selected.link || ''}
+                  placeholder="Введите ссылку пункта меню"
+                />
+              </div>
             </div>
             <div class="box-footer">
             {
               (this.state.mode === 'add') ?
                 <button type="submit" class="btn btn-primary fa fa-check" onClick={this.addMenuHandler.bind(this)}> Добавить</button> :
                 <div class="btn-group">
-                  <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateMenuHandler.bind(this)}> Сохранить</button>
-                  <button type="submit" class="btn btn-default fa fa-file-o" onClick={this.resetMenuHandler.bind(this)}> Новый</button>
-                  <button type="submit" class="btn btn-danger fa fa-trash" onClick={this.deleteMenuHandler.bind(this)}> Удалить</button>
+                  <button type="submit" class={"btn btn-primary fa fa-check".concat(this.state.selected.parrentId === "" ? " disabled" : "")} onClick={this.updateMenuHandler.bind(this)}> Сохранить</button>
+                  <button type="submit" class="btn btn-default fa fa-file-o" onClick={this.insertMenuHandler.bind(this)}> Новый</button>
+                  <button type="submit" class={"btn btn-danger fa fa-trash".concat(this.state.selected.parrentId === "" ? " disabled" : "")} onClick={this.deleteMenuHandler.bind(this)}> Удалить</button>
                 </div>
             }
             </div>
