@@ -224,7 +224,12 @@ export default class Categories extends React.Component {
   updateCategoryHandler(e) {
     e.preventDefault();
 
-    update({ ...this.state.selected },
+    const data = Object.assign(
+      { ...this.state.selected },
+      { pictures: (this.state.selected.pictures || []).map(({ id }) => id) }
+    );
+
+    update(data,
       (category) => {
         dispatch('notification:throw', {
           type: 'success',

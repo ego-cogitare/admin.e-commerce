@@ -25,6 +25,10 @@ const routes = {
       component: require('../components/pages/products/Products.jsx').default
     },
     {
+      path: 'product-props',
+      component: require('../components/pages/products/Properties.jsx').default
+    },
+    {
       path: 'static-page(/:id)',
       component: require('../components/pages/staticPages/StaticPage.jsx').default
     },

@@ -62,6 +62,11 @@ export default class LeftMenu extends React.Component {
                   </Link>
                 </li>
                 <li>
+                  <Link to="/product-props" activeClassName="active">
+                    <i class="fa fa-circle-o"></i> <span>Редактировать свойства</span>
+                  </Link>
+                </li>
+                <li>
                   <Link to="/import" activeClassName="active">
                     <i class="fa fa-circle-o"></i> <span>Импорт</span>
                   </Link>

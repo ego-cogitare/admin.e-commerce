@@ -28,3 +28,19 @@ export function addPicture({ product, picture }, success, error) {
 export function deletePicture(data, success, error) {
     request(`/product/delete-picture`, data, 'post', success, error);
 };
+
+export function properties(params, success, error) {
+    request(`/product/properties`, params, 'get', success, error);
+};
+
+export function addProperty(data, success, error) {
+    request(`/product/add-property`, data, 'post', success, error);
+};
+
+export function updateProperty(data, success, error) {
+    request(`/product/update-property/${data.id}`, data, 'post', success, error);
+};
+
+export function removeProperty(data, success, error) {
+    request(`/product/remove-property/${data.id}`, {}, 'post', success, error);
+};
