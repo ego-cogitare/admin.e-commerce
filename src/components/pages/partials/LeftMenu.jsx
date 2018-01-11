@@ -33,7 +33,7 @@ export default class LeftMenu extends React.Component {
               <ul class="treeview-menu">
                 <li>
                   <Link to="/brands" activeClassName="active">
-                    <i class="fa fa-circle-o"></i> <span>Управление</span>
+                    <i class="fa fa-circle-o"></i> <span>Список</span>
                   </Link>
                 </li>
                 <li>
@@ -53,7 +53,7 @@ export default class LeftMenu extends React.Component {
               <ul class="treeview-menu">
                 <li>
                   <Link to="/products" activeClassName="active">
-                    <i class="fa fa-circle-o"></i> <span>Управление</span>
+                    <i class="fa fa-circle-o"></i> <span>Список</span>
                   </Link>
                 </li>
                 <li>
@@ -83,7 +83,7 @@ export default class LeftMenu extends React.Component {
               <ul class="treeview-menu">
                 <li>
                   <Link to="/orders" activeClassName="active">
-                    <i class="fa fa-circle-o"></i> <span>Управление</span>
+                    <i class="fa fa-circle-o"></i> <span>Список</span>
                   </Link>
                 </li>
                 <li>
@@ -103,7 +103,7 @@ export default class LeftMenu extends React.Component {
               <ul class="treeview-menu">
                 <li>
                   <Link to="/static-pages" activeClassName="active">
-                    <i class="fa fa-circle-o"></i> <span>Управление</span>
+                    <i class="fa fa-circle-o"></i> <span>Список</span>
                   </Link>
                 </li>
                 <li>
@@ -131,6 +131,27 @@ export default class LeftMenu extends React.Component {
                     <i class="fa fa-circle-o"></i> <span>Новый пост</span>
                   </Link>
                 </li>
+              </ul>
+            </li>
+            <li class="treeview">
+              <a href="#">
+                <i class="fa fa-wordpress"></i> <span>Меню</span>
+                <span class="pull-right-container">
+                  <i class="fa fa-angle-left pull-right"></i>
+                </span>
+              </a>
+              <ul class="treeview-menu">
+                <li>
+                  <Link to="/menu" activeClassName="active">
+                    <i class="fa fa-circle-o"></i> <span>Создать</span>
+                  </Link>
+                </li>
+                {/*
+                <li>
+                  <Link to="/blog-page" activeClassName="active">
+                    <i class="fa fa-circle-o"></i> <span>Новый пост</span>
+                  </Link>
+                </li>*/}
               </ul>
             </li>
           </ul>

@@ -56,6 +56,10 @@ const routes = {
       path: 'blog-page(/:id)',
       component: require('../components/pages/blog/BlogPage.jsx').default
     },
+    {
+      path: 'menu(/:id)',
+      component: require('../components/pages/menus/Menu.jsx').default
+    },
     // {
     //   path: '/',
     //   component: require('../components/pages/orders/Orders.jsx').default
