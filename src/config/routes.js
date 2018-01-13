@@ -60,6 +60,10 @@ const routes = {
       path: 'menu(/:id)',
       component: require('../components/pages/menus/Menu.jsx').default
     },
+    {
+      path: 'menus',
+      component: require('../components/pages/menus/List.jsx').default
+    },
     // {
     //   path: '/',
     //   component: require('../components/pages/orders/Orders.jsx').default

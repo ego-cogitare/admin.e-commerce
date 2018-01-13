@@ -1,6 +1,6 @@
 module.exports = {
-  backUrl: 'http://192.168.1.219',
-  frontUrl: 'http://192.168.1.219:8080',
+  backUrl: 'http://api.unimed.loc',
+  frontUrl: 'http://192.168.0.7:8080',
   staticFiles: '/uploads',
   trumbowyg: require('./trumbowyg')
 };

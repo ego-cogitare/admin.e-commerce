@@ -118,7 +118,6 @@ export default class StaticPages extends React.Component {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     );

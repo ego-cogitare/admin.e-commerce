@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import classNames from 'classnames';
 import Tree from 'react-ui-tree';
 import 'react-ui-tree/dist/react-ui-tree.css';
+import DeleteItemDialog from './popups/DeleteItemDialog.jsx';
 import Settings from '../../../core/helpers/Settings';
 import { Checkbox, Radio, RadioGroup } from 'react-icheck';
 import { dispatch } from '../../../core/helpers/EventEmitter';
@@ -60,14 +61,43 @@ export default class Menu extends React.Component {
    * Event should be fired on component render
    */
   initDialogs() {
-    // this.deleteСategoryDialog =
-    //   <DeleteCategoryDialog
-    //     onDeleteClick={this._deleteCategory.bind(this)}
-    //   />;
+    this.deleteItemDialog =
+      <DeleteItemDialog
+        onDeleteClick={this._deleteItem.bind(this)}
+      />;
+  }
+
+  _deleteItem() {
+    dispatch('popup:close');
+
+    itemRemove(
+      { menuId: this.props.params.id, id: this.state.selected.id },
+      (r) => {
+        // Update menu tree
+        this._loadMenuTree();
+
+        dispatch('notification:throw', {
+          type: 'warning',
+          title: 'Успех',
+          message: 'Пункт меню удален'
+        });
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
   }
 
   addMenuHandler(e) {
     e.preventDefault();
+
+    if (typeof this.state.selected.id === 'undefined') {
+      return ;
+    }
 
     itemAdd(
       Object.assign({ ...this.state.selected }, { menuId: this.props.params.id }),
@@ -91,15 +121,54 @@ export default class Menu extends React.Component {
     );
   }
 
-  updateMenuHandler() {
+  updateMenuHandler(e) {
+    e.preventDefault();
 
+    if (typeof this.state.selected.id === 'undefined') {
+      return ;
+    }
+
+    itemUpdate(
+      { ...this.state.selected },
+      (item) => {
+        dispatch('notification:throw', {
+          type: 'success',
+          title: 'Успех',
+          message: 'Данные меню сохранены'
+        });
+        this.setState({ mode: 'edit' },
+          () => this._loadMenuTree()
+        );
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
   }
 
-  deleteMenuHandler() {
+  deleteItemHandler(e) {
+    e.preventDefault();
 
+    if (typeof this.state.selected.id === 'undefined') {
+      return ;
+    }
+
+    dispatch('popup:show', {
+      title: 'Подтвердите действие',
+      body: this.deleteItemDialog
+    });
   }
 
   insertMenuHandler() {
+
+    if (typeof this.state.selected.id === 'undefined') {
+      return ;
+    }
+
     const item = Object.assign(
       { ...this.emptyItem },
       {
@@ -221,7 +290,7 @@ export default class Menu extends React.Component {
                 <div class="btn-group">
                   <button type="submit" class={"btn btn-primary fa fa-check".concat(this.state.selected.parrentId === "" ? " disabled" : "")} onClick={this.updateMenuHandler.bind(this)}> Сохранить</button>
                   <button type="submit" class="btn btn-default fa fa-file-o" onClick={this.insertMenuHandler.bind(this)}> Новый</button>
-                  <button type="submit" class={"btn btn-danger fa fa-trash".concat(this.state.selected.parrentId === "" ? " disabled" : "")} onClick={this.deleteMenuHandler.bind(this)}> Удалить</button>
+                  <button type="submit" class={"btn btn-danger fa fa-trash".concat(this.state.selected.parrentId === "" ? " disabled" : "")} onClick={this.deleteItemHandler.bind(this)}> Удалить</button>
                 </div>
             }
             </div>
