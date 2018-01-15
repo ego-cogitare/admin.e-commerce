@@ -6,6 +6,7 @@ public/vendors/
 public/images/
 .idea/
 public/assets/
+src/config/config.dev.js
 src/config/config.prod.js
 /nbproject/private/
 markup/
