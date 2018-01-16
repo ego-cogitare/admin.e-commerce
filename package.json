@@ -6,7 +6,7 @@
   "license": "BSD-2-Clause",
   "main": "app.js",
   "scripts": {
-    "dev": "./node_modules/.bin/webpack-dev-server --config webpack.config.dev.js --content-base public --inline --hot --host 192.168.1.219 --port 8080",
+    "dev": "./node_modules/.bin/webpack-dev-server --config webpack.config.dev.js --content-base public --inline --hot --host 192.168.0.7 --port 8080",
     "build": "./node_modules/.bin/webpack --config webpack.config.prod.js -p",
     "server": "./node_modules/.bin/http-server"
   },

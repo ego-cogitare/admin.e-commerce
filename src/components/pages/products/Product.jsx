@@ -388,6 +388,7 @@ export default class Product extends React.Component {
                   multiple={false}
                   placeholder="Выберите одну или несколько категорий"
                   onChange={(categoryId) => {
+                    console.log(this.state);
                     this.updateField('categoryId', categoryId);
                   }}
                   data={this.state.categories}

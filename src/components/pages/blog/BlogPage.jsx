@@ -1,4 +1,5 @@
 import React from 'react';
+import Select2 from '../../widgets/Select2.jsx';
 import { Checkbox, Radio, RadioGroup } from 'react-icheck';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { browserHistory, Link } from 'react-router';
@@ -20,6 +21,21 @@ export default class BlogPost extends React.Component {
 
       // Current selected post
       selected: JSON.parse(JSON.stringify(this.emptyPost)),
+
+      tags: [
+        {
+          id: '111',
+          text: 'a',
+          title: 'a',
+        },
+        {
+          id: '222',
+          text: 'b',
+          title: 'b',
+        },
+      ],
+
+      tagIds: []
     };
   }
 
@@ -149,6 +165,31 @@ export default class BlogPost extends React.Component {
                   ref="editor"
                   contentEditable="true"
                   dangerouslySetInnerHTML={{__html: this.state.selected.body}}
+                />
+              </div>
+              <div class="form-group">
+                <label for="productBrand">Теги</label>
+                <Select2
+                  style={{ width: '100%' }}
+                  nestedOffset="30"
+                  multiple={true}
+                  placeholder="Теги"
+                  onChange={(tagIds) => this.setState({ tagIds })}
+                  onSearch={(v) => {
+                    this.state.tags.push({
+                      id: '333',
+                      text: v,
+                      title: v
+                    });
+                    this.state.tagIds.push('333');
+
+                    this.setState({
+                      tags: this.state.tags,
+                      tagIds: this.state.tagIds,
+                    });
+                  }}
+                  data={this.state.tags}
+                  value={this.state.tagIds}
                 />
               </div>
               <div class="form-group">

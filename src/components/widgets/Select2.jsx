@@ -44,11 +44,15 @@ export default class Select2 extends React.Component {
     .off('change')
     .on('change', (e) => {
       const selected = $(this.refs.select).val();
-
       this.props.multiple ?
         this.props.onChange(selected || []) :
         this.props.onChange(selected || '');
-    });
+    })
+
+    $('.select2-search__field')
+      .on('keyup', (e) => {
+        e.which === 13 && this.props.onSearch && this.props.onSearch(e.target.value);
+      });
 
     this.props.value && $(this.refs.select).val(this.props.value);
   }
