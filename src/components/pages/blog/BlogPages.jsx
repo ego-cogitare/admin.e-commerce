@@ -39,9 +39,7 @@ export default class BlogPages extends React.Component {
   get columns() {
     return [
       { name: 'title', display: 'Страница', sort: true },
-      { name: 'dateCreated', display: 'Добавлена', sort: true, renderer: ({ dateCreated }) => {
-        return Moment(dateCreated * 1000).format('DD.MM.YYYY HH:mm');
-      } },
+      { name: 'briefly', display: 'Краткое описание', sort: true },
       { name: 'edit', display: 'Править', sort: false, width: 10, renderer: (row) => {
         return <Link to={"blog-page/" + row.id}><span class="fa fa-edit"></span></Link>;
       } },

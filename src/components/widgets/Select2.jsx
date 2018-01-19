@@ -30,6 +30,11 @@ export default class Select2 extends React.Component {
   _initSelect() {
     $(this.refs.select).select2({
       data: this.state.data,
+      language: {
+        noResults: (params) => {
+          return this.props.noResultsText;
+        }
+      },
       templateResult: (node) => {
         return $(`<span style="padding-left:${(this.props.nestedOffset || 20) * (node.level || 0)}px">${node.text}</span>`);
       },
@@ -48,10 +53,10 @@ export default class Select2 extends React.Component {
         this.props.onChange(selected || []) :
         this.props.onChange(selected || '');
     })
-
-    $('.select2-search__field')
+    .siblings('.select2')
+    .find('.select2-search__field')
       .on('keyup', (e) => {
-        e.which === 13 && this.props.onSearch && this.props.onSearch(e.target.value);
+        e.which === 13 && this.props.onCustomInput && this.props.onCustomInput(e.target.value);
       });
 
     this.props.value && $(this.refs.select).val(this.props.value);
