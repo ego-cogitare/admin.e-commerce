@@ -33,7 +33,6 @@ export default class Product extends React.Component {
       pictureId: '',
       relatedProducts: [],
       isNovelty: false,
-      showOnHome: false,
       isAuction: false,
       isBestseller: false,
       price: 0,
@@ -408,17 +407,6 @@ export default class Product extends React.Component {
                   addPictureCallback={this._uploadFiles.bind(this)}
                   deletePictureControll={true}
                   deletePictureCallback={this._deletePicture.bind(this)}
-                />
-              </div>
-              <div class="form-group">
-                <label for="showOnHome">Показать на главной</label>
-                <br/>
-                <Checkbox
-                  id="showOnHome"
-                  checkboxClass="icheckbox_square-blue"
-                  increaseArea="20%"
-                  checked={this.state.selected.showOnHome}
-                  onChange={(e) => this.updateField('showOnHome', !e.target.checked)}
                 />
               </div>
               <div class="form-group">

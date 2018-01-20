@@ -134,7 +134,7 @@ export default class BlogPost extends React.Component {
         { id: this.props.params.id },
         (r) => this.setState({
             selected: r,
-            tagIds: (r.tags || []).map((id) => id),
+            tagIds: (r.tags || []).map(({ id }) => id),
             mode: 'edit'
           },
           () => this.initTextEditor()
