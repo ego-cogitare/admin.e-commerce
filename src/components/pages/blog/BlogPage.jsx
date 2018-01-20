@@ -21,6 +21,7 @@ export default class BlogPost extends React.Component {
       tags: [],
       pictures: [],
       pictureId: '',
+      showOnHome: false,
       isDeleted: false,
       isVisible: true
     };
@@ -158,35 +159,6 @@ export default class BlogPost extends React.Component {
     $(this.refs.editor).trumbowyg(config.trumbowyg);
   }
 
-  addPostHandler() {
-    add(
-      Object.assign(this.state.selected, { body: this.refs.editor.innerHTML }),
-      (selected) => {
-        this.setState({
-            mode: 'edit',
-            selected,
-          },
-          () => {
-            browserHistory.push(`#/blog-page/${selected.id}`);
-
-            dispatch('notification:throw', {
-              type: 'success',
-              title: 'Успех',
-              message: 'Пост успешно добавлен'
-            });
-          }
-        );
-      },
-      (e) => {
-        dispatch('notification:throw', {
-          type: 'danger',
-          title: 'Ошибка',
-          message: e.responseJSON.error
-        });
-      }
-    );
-  }
-
   _uploadFiles() {
     dispatch('popup:show', {
       title: 'Перетяните и бросьте файл для загрузки',
@@ -240,15 +212,18 @@ export default class BlogPost extends React.Component {
   }
 
   updatePostHandler() {
-    const selected = Object.assign(this.state.selected, {
+    let post = JSON.parse(JSON.stringify(this.state.selected));
+
+    Object.assign(post, {
+      body: this.refs.editor.innerHTML,
+      pictures: post.pictures.map(({ id }) => id),
       tags: this.state.tagIds
     });
 
-    update(
-      this.state.selected,
-      (selected) => {
+    update(post,
+      (post) => {
         this.setState({
-            selected: this.state.selected
+            selected: post
           },
           () => {
             dispatch('notification:throw', {
@@ -348,6 +323,21 @@ export default class BlogPost extends React.Component {
                   addPictureCallback={this._uploadFiles.bind(this)}
                   deletePictureControll={true}
                   deletePictureCallback={this._deletePicture.bind(this)}
+                />
+              </div>
+              <div class="form-group">
+                <label for="showOnHome">Показать на главной</label>
+                <br/>
+                <Checkbox
+                  id="showOnHome"
+                  checkboxClass="icheckbox_square-blue"
+                  increaseArea="20%"
+                  checked={this.state.selected.showOnHome}
+                  onChange={(e) => {
+                    const selected = this.state.selected;
+                    selected.showOnHome = !e.target.checked;
+                    this.setState({ selected });
+                  }}
                 />
               </div>
               <div class="form-group">
