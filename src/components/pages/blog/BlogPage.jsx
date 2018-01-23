@@ -278,7 +278,7 @@ export default class BlogPost extends React.Component {
             </div>
             <div class="box-body">
               <div class="form-group">
-                <label for="postTitle">Заголовок</label>
+                <label for="postTitle">Заголовок *</label>
                 <input
                   type="text"
                   id="postTitle"
@@ -292,7 +292,7 @@ export default class BlogPost extends React.Component {
                 />
               </div>
               <div class="form-group">
-                <label for="postBriefly">Краткое описание</label>
+                <label for="postBriefly">Краткое описание *</label>
                 <textarea
                   id="postBriefly"
                   class="form-control"
@@ -303,6 +303,9 @@ export default class BlogPost extends React.Component {
                   }}
                   placeholder="Введите краткое описание поста"
                 />
+              </div>
+              <div class="form-group">
+                <label>Полное описание *</label>
                 <div
                   class="form-control"
                   ref="editor"

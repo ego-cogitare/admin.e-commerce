@@ -26,9 +26,12 @@ export default class Product extends React.Component {
     this.emptyProduct = {
       id: '',
       title: '',
+      briefly: '',
       description: '',
       brandId: '',
       categoryId: '',
+      video: '',
+      sku: '',
       pictures: [],
       pictureId: '',
       relatedProducts: [],
@@ -58,6 +61,10 @@ export default class Product extends React.Component {
       // Список брэндов
       brands: []
     };
+  }
+
+  initTextEditor() {
+    $(this.refs.productDescription).trumbowyg(config.trumbowyg);
   }
 
   fetchCategories() {
@@ -132,6 +139,7 @@ export default class Product extends React.Component {
             () => {
               this.fetchCategories();
               this.fetchBrands();
+              this.initTextEditor();
             }
           );
         },
@@ -148,6 +156,7 @@ export default class Product extends React.Component {
     else
     {
       this.getBootstrapProduct();
+      this.initTextEditor();
     }
   }
 
@@ -281,8 +290,12 @@ export default class Product extends React.Component {
     e.preventDefault();
 
     const product = JSON.parse(JSON.stringify(this.state.selected));
-    product.pictures = product.pictures.map(({ id }) => id);
-    product.relatedProducts = product.relatedProducts.map(({ id }) => id);
+
+    Object.assign(product, {
+      pictures: product.pictures.map(({ id }) => id),
+      relatedProducts: product.relatedProducts.map(({ id }) => id),
+      description: this.refs.productDescription.innerHTML
+    });
 
     update(product,
       (r) => {
@@ -357,15 +370,51 @@ export default class Product extends React.Component {
                 />
               </div>
               <div class="form-group">
-                <label for="productDescription">Описание товара *</label>
-                <textarea
+                <label for="productSku">Артикул *</label>
+                <input
+                  type="text"
                   class="form-control"
-                  id="productDescription"
-                  onChange={(e) => this.updateField('description', e.target.value)}
-                  value={this.state.selected.description || ''}
-                  placeholder="Введите описание товара"
+                  id="productSku"
+                  onChange={(e) => this.updateField('sku', e.target.value)}
+                  value={this.state.selected.sku || ''}
+                  placeholder="Введите артикул товара"
                 />
               </div>
+              <div class="form-group">
+                <label for="productVideo">Видеообзор товара *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="productVideo"
+                  onChange={(e) => this.updateField('video', e.target.value)}
+                  value={this.state.selected.video || ''}
+                  placeholder="Введите ссылку на обзор товара"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="productBriefly">Краткое описание *</label>
+                <textarea
+                  id="productBriefly"
+                  class="form-control"
+                  value={this.state.selected.briefly || ''}
+                  onChange={(e) => {
+                    this.state.selected.briefly = e.target.value;
+                    this.setState({ selected: this.state.selected });
+                  }}
+                  placeholder="Введите краткое описание продукта"
+                />
+              </div>
+              <div class="form-group">
+                <label for="postBriefly">Полное описание *</label>
+                <div
+                  class="form-control"
+                  ref="productDescription"
+                  contentEditable="true"
+                  dangerouslySetInnerHTML={{__html: this.state.selected.description || ''}}
+                />
+              </div>
+
               <div class="form-group">
                 <label for="productBrand">Брэнд *</label>
                 <Select2
@@ -482,6 +531,18 @@ export default class Product extends React.Component {
                     }}
                   />
                 </div>
+              </div>
+              <div class="form-group">
+                <label for="discountTimeout">Время действия скидки</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="discountTimeout"
+                  onChange={(e) => this.updateField('discountTimeout', e.target.value)}
+                  value={this.state.selected.discountTimeout || ''}
+                  placeholder="0"
+                  style={{ width: 120 }}
+                />
               </div>
               <div class="form-group">
                 <label for="isAvailable">Есть в наличии</label>
