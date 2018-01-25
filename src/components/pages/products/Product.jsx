@@ -12,6 +12,7 @@ import FileDragAndDrop from 'react-file-drag-and-drop';
 import FileUpload from 'react-fileupload';
 import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
 import RelativeProductsDialog from './popups/RelativeProductsDialog.jsx';
+import ProductPropertiesDialog from './popups/ProductPropertiesDialog.jsx';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
 import { bootstrap, get, update, remove, addPicture, deletePicture } from '../../../actions/Products';
@@ -35,6 +36,7 @@ export default class Product extends React.Component {
       pictures: [],
       pictureId: '',
       relatedProducts: [],
+      properties: [],
       isNovelty: false,
       isAuction: false,
       isBestseller: false,
@@ -209,6 +211,12 @@ export default class Product extends React.Component {
       <DeletePictureDialog
         onDeleteClick={this._doDeletePicture.bind(this)}
       />;
+
+    this.productPropertiesDialog =
+      <ProductPropertiesDialog
+        onSelectClick={this._doPropertiesUpdate.bind(this)}
+        enabledList={this.state.selected.properties}
+      />;
   }
 
   _selectRelativeProducts() {
@@ -223,6 +231,15 @@ export default class Product extends React.Component {
     selected.relatedProducts = selected.relatedProducts.concat(products);
 
     this.setState({ selected }, () => dispatch('popup:close'));
+  }
+
+  _selectProperties(e) {
+    e.preventDefault();
+
+    dispatch('popup:show', {
+      title: 'Отметьте нужные параметры',
+      body: this.productPropertiesDialog
+    });
   }
 
   productTitleChange(e) {
@@ -249,6 +266,11 @@ export default class Product extends React.Component {
       title: 'Подтвердите действие',
       body: this.deletePictureDialog
     });
+  }
+
+  _doPropertiesUpdate(properties) {
+    dispatch('popup:close');
+    this.updateField('properties', properties || []);
   }
 
   _doDeletePicture() {
@@ -298,13 +320,14 @@ export default class Product extends React.Component {
       description: this.refs.productDescription.innerHTML
     });
 
-    update(product,
+    update(
+      product,
       (r) => {
-        this.setState({ selected: r, mode: 'edit' });
+        this.setState({
+          selected: r, 
+          mode: 'edit'
+        });
 
-        if (product.type !== 'final') {
-          this.setState({ products: this.state.products.concat(r) });
-        }
         dispatch('notification:throw', {
           type: 'success',
           title: 'Успех',
@@ -382,7 +405,7 @@ export default class Product extends React.Component {
                 />
               </div>
               <div class="form-group">
-                <label for="productVideo">Видеообзор товара *</label>
+                <label for="productVideo">Видеообзор товара</label>
                 <input
                   type="text"
                   class="form-control"
@@ -415,7 +438,6 @@ export default class Product extends React.Component {
                   dangerouslySetInnerHTML={{__html: this.state.selected.description || ''}}
                 />
               </div>
-
               <div class="form-group">
                 <label for="productBrand">Брэнд *</label>
                 <Select2
@@ -460,6 +482,12 @@ export default class Product extends React.Component {
                 />
               </div>
               <div class="form-group">
+                <div class="text-bold">Параметры продукта</div>
+                <div class="btn btn-primary btn-sm" onClick={this._selectProperties.bind(this)}>
+                  <i class="fa fa-pencil"></i>
+                </div>
+              </div>
+              <div class="form-group">
                 <label for="isNovelty">Новинка</label>
                 <br/>
                 <Checkbox
@@ -493,7 +521,7 @@ export default class Product extends React.Component {
                 />
               </div>
               <div class="form-group">
-                <label for="productPrice">Стоимость *</label>
+                <label for="productPrice">Цена *</label>
                 <div class="input-group">
                   <input
                     type="text"

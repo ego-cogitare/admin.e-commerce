@@ -32,7 +32,7 @@ export default class Layout extends React.Component {
 
   render() {
     return (
-       <div className="hold-transition skin-blue sidebar-mini layout-boxed">
+       <div className="hold-transition skin-blue sidebar-mini layoutboxed">
          <UI.Notifications limit="3" />
          <UI.Popup />
          <div className="wrapper">
