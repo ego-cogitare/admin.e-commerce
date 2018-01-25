@@ -41,6 +41,7 @@ export default class Product extends React.Component {
       price: 0,
       discount: 0,
       discountType: '',
+      discountTimeout: 0,
       isAvailable: true,
       availableAmount: -1
     };
