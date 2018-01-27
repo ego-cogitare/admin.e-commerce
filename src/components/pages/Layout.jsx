@@ -14,20 +14,19 @@ export default class Layout extends React.Component {
 
   // Get bootstrap settings
   componentDidMount() {
-    subscribe('settings:sync', () => {
-      get(
-        (config) => Settings.apply(config),
-        (e) => {
-          dispatch('notification:throw', {
-            type: 'danger',
-            title: 'Ошибка',
-            message: e.responseJSON.error
-          });
-        }
-      );
-    });
-
-    dispatch('settings:sync');
+    get(
+      (config) => {
+        Settings.apply(config);
+        dispatch('settings:sync', config);
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
   }
 
   render() {

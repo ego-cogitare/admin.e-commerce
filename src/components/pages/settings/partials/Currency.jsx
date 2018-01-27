@@ -7,17 +7,16 @@ export default class Currency extends React.Component {
     super(props);
 
     this.state = {
-      currencyCode: 'UAH',
+      currencyCode: '',
       currencyList: [],
-      currencyCource: '0.00'
+      currencyCource: ''
     };
   }
 
-  componentDidMount() {
+  componentWillReceiveProps({currencyList, currencyCode}) {
     this.setState({
-      currencyList: JSON.parse(this.props.settings.currencyList),
-      currencyCource: Number(this.props.settings.currencyCource),
-      currencyCode: this.props.settings.currencyCode,
+      currencyList,
+      currencyCode,
     });
   }
 
@@ -71,6 +70,7 @@ export default class Currency extends React.Component {
               }
             </RadioGroup>
           </div>
+          {/*
           <div class="form-group">
             <input
               type="text"
@@ -99,6 +99,10 @@ export default class Currency extends React.Component {
             />
             <span style={{ marginLeft: '5px' }}>{this.state.currencyCode}</span>
           </div>
+          */}
+        </div>
+        <div class="box-footer">
+          <button type="submit" class="btn btn-primary fa fa-check" onClick={() => this.props.onSave(this.state)}>Сохранить</button>
         </div>
       </div>
     );
