@@ -19,7 +19,8 @@ export default class RelativeProductsDialog extends React.Component {
   }
 
   componentDidMount() {
-    tree({},
+    tree(
+      {},
       (categories) => this.setState({ categories }),
       (e) => {
         dispatch('notification:throw', {
@@ -37,17 +38,22 @@ export default class RelativeProductsDialog extends React.Component {
     }
 
     const params = (categories[0].id === '') ?
-      {} :
+      {
+        sort: {
+          title: 1
+        }
+      } :
       {
         filter: {
-          categories: { '$in': categories.map(({ id }) => id) }
+          categoryId: { '$in': categories.map(({ id }) => id) }
         },
         sort: {
           title: 1
         }
       };
 
-    list(params,
+    list(
+      params,
       (products) => {
         // Only not yet added products
         this.setState({

@@ -43,10 +43,11 @@ export default class Orders extends React.Component {
           //.concat('…');
       } },
       { name: 'stateId', display: 'Состояние', sort: true, renderer: ({ stateId }) => {
-        const states = JSON.parse(Settings.get('productStates'));
-        return Object.values(states.find((state) => Object.keys(state)[0] === stateId))[0];
+        const state = (JSON.parse(Settings.get('productStates')) || []).find(({[stateId]:state}) => state);
+        return Object.values(state || {})[0];
       } },
-      { name: 'firstName', display: 'Имя', sort: true },
+      { name: 'userName', display: 'Имя', sort: true },
+      { name: 'address', display: 'Адрес', sort: true },
       { name: 'phone', display: 'Телефон', sort: true },
       { name: 'edit', display: 'Править', sort: false, width: 10, renderer: (row) => {
         return (

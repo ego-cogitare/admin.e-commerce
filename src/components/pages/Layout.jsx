@@ -12,11 +12,25 @@ import '../../staticFiles/css/Custom.css';
 
 export default class Layout extends React.Component {
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      pageLoaded: false
+    };
+  }
+
   // Get bootstrap settings
   componentDidMount() {
     get(
       (config) => {
+        // Apply configuration
         Settings.apply(config);
+
+        // Set page loaded flag to true
+        this.setState({ pageLoaded: true });
+
+        // Broadcast settings event
         dispatch('settings:sync', config);
       },
       (e) => {
@@ -30,17 +44,21 @@ export default class Layout extends React.Component {
   }
 
   render() {
-    return (
-       <div className="hold-transition skin-blue sidebar-mini layoutboxed">
-         <UI.Notifications limit="3" />
-         <UI.Popup />
-         <div className="wrapper">
-          <Partials.Header />
-          <Partials.LeftMenu />
-          <Partials.Content children={this.props.children} />
-          <Partials.Footer />
+    // Do not instantiate application until settins is loaded
+    if (this.state.pageLoaded) {
+      return (
+        <div className="hold-transition skin-blue sidebar-mini layoutboxed">
+          <UI.Notifications limit="3" />
+          <UI.Popup />
+          <div className="wrapper">
+            <Partials.Header />
+            <Partials.LeftMenu />
+            <Partials.Content children={this.props.children} />
+            <Partials.Footer />
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
+    return null;
   }
 }

@@ -93,7 +93,7 @@ const routes = {
 
   resolve: function (route) {
     // Get logged user data
-    const loggedUser = JSON.parse(localStorage.getItem('user'));
+    const loggedUser = JSON.parse(localStorage.getItem('user')) || {};
 
     loggedUser.role = 'ROLE_ADMIN';
 

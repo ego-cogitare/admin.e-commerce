@@ -187,27 +187,27 @@ export default class Order extends React.Component {
                 </div>
               </div>
               <div class="form-group">
-                <label for="orderFirstName">Имя *</label>
+                <label for="orderUserName">Имя *</label>
                 <input
                   type="text"
-                  ref="orderFirstName"
+                  ref="orderUserName"
                   class="form-control"
-                  id="orderFirstName"
-                  onChange={(e) => this.updateField('firstName', e.target.value)}
-                  value={this.state.order.firstName || ''}
+                  id="orderUserName"
+                  onChange={(e) => this.updateField('userName', e.target.value)}
+                  value={this.state.order.userName || ''}
                   placeholder="Введите имя покупателя"
                 />
               </div>
               <div class="form-group">
-                <label for="orderLastName">Фамилия *</label>
+                <label for="orderAddress">Адрес *</label>
                 <input
                   type="text"
-                  ref="orderLastName"
+                  ref="orderAddress"
                   class="form-control"
-                  id="orderLastName"
-                  onChange={(e) => this.updateField('lastName', e.target.value)}
-                  value={this.state.order.lastName || ''}
-                  placeholder="Введите фамилию покупателя"
+                  id="orderAddress"
+                  onChange={(e) => this.updateField('address', e.target.value)}
+                  value={this.state.order.address || ''}
+                  placeholder="Введите адрес доставки"
                 />
               </div>
               <div class="form-group">

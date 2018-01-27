@@ -94,7 +94,7 @@ export default class ProductsList extends React.Component {
       <div class={this.props.className}>
         {
           this.state.products.length > 0 ?
-            this.state.products.map(({ id, title, description, pictures, pictureId }) => {
+            this.state.products.map(({ id, title, briefly, description, pictures, pictureId }) => {
               const picture = pictures.find(({ id }) => id === pictureId) || pictures[0];
 
               return (
@@ -108,7 +108,7 @@ export default class ProductsList extends React.Component {
                       <h4 style={{ marginTop:0 }}>
                         <Link target="_blank" to={`product/${id}`}>{title}</Link>
                       </h4>
-                      <p>{description}</p>
+                      <p>{briefly}</p>
                     </div>
                   </div>
                 </div>
