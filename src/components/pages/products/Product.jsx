@@ -13,11 +13,13 @@ import FileUpload from 'react-fileupload';
 import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
 import RelativeProductsDialog from './popups/RelativeProductsDialog.jsx';
 import ProductPropertiesDialog from './popups/ProductPropertiesDialog.jsx';
+import ProductReviewsDialog from './popups/ProductReviewsDialog.jsx';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
 import { bootstrap, get, update, remove, addPicture, deletePicture } from '../../../actions/Products';
 import { tree as categoryTree } from '../../../actions/Category';
 import { list as brandList } from '../../../actions/Brand';
+import { setApproved as setApprovedReviews } from '../../../actions/Review';
 
 export default class Product extends React.Component {
 
@@ -216,6 +218,14 @@ export default class Product extends React.Component {
       <ProductPropertiesDialog
         onSelectClick={this._doPropertiesUpdate.bind(this)}
         enabledList={this.state.selected.properties}
+        style={{ width:1200 }}
+      />;
+
+    this.productReviewsDialog =
+      <ProductReviewsDialog
+        productId={this.props.params.id}
+        onSelectClick={this._doReviewsUpdate.bind(this)}
+        style={{ width:1200 }}
       />;
   }
 
@@ -239,6 +249,15 @@ export default class Product extends React.Component {
     dispatch('popup:show', {
       title: 'Отметьте нужные параметры',
       body: this.productPropertiesDialog
+    });
+  }
+
+  _viewReviews(e) {
+    e.preventDefault();
+
+    dispatch('popup:show', {
+      title: 'Отзывы о продукте',
+      body: this.productReviewsDialog
     });
   }
 
@@ -271,6 +290,31 @@ export default class Product extends React.Component {
   _doPropertiesUpdate(properties) {
     dispatch('popup:close');
     this.updateField('properties', properties || []);
+  }
+
+  _doReviewsUpdate(reviews) {
+    dispatch('popup:close');
+
+    setApprovedReviews(
+      {
+        productId: this.props.params.id,
+        reviewIds: reviews
+      },
+      (r) => {
+        dispatch('notification:throw', {
+          type: 'success',
+          title: 'Успех',
+          message: 'Отзывы опубликованы'
+        });
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
   }
 
   _doDeletePicture() {
@@ -324,7 +368,7 @@ export default class Product extends React.Component {
       product,
       (r) => {
         this.setState({
-          selected: r, 
+          selected: r,
           mode: 'edit'
         });
 
@@ -488,37 +532,46 @@ export default class Product extends React.Component {
                 </div>
               </div>
               <div class="form-group">
-                <label for="isNovelty">Новинка</label>
-                <br/>
-                <Checkbox
-                  id="isNovelty"
-                  checkboxClass="icheckbox_square-blue"
-                  increaseArea="20%"
-                  checked={this.state.selected.isNovelty}
-                  onChange={(e) => this.updateField('isNovelty', !e.target.checked)}
-                />
+                <div class="text-bold">Отзывы</div>
+                <div class="btn btn-primary btn-sm" onClick={this._viewReviews.bind(this)}>
+                  <i class="fa fa-pencil"></i>
+                </div>
               </div>
-              <div class="form-group">
-                <label for="isProductAuction">Акция</label>
-                <br/>
-                <Checkbox
-                  id="isProductAuction"
-                  checkboxClass="icheckbox_square-blue"
-                  increaseArea="20%"
-                  checked={this.state.selected.isAuction}
-                  onChange={(e) => this.updateField('isAuction', !e.target.checked)}
-                />
-              </div>
-              <div class="form-group">
-                <label for="isProductBestseller">Бестселлер</label>
-                <br/>
-                <Checkbox
-                  id="isProductBestseller"
-                  checkboxClass="icheckbox_square-blue"
-                  increaseArea="20%"
-                  checked={this.state.selected.isBestseller}
-                  onChange={(e) => this.updateField('isBestseller', !e.target.checked)}
-                />
+              <div class="row">
+                <div class="col-md-1 col-sm-6 col-xs-12">
+                  <label for="isNovelty">Новинка</label>
+                  <br/>
+                  <Checkbox
+                    id="isNovelty"
+                    checkboxClass="icheckbox_square-blue"
+                    increaseArea="20%"
+                    checked={this.state.selected.isNovelty}
+                    onChange={(e) => this.updateField('isNovelty', !e.target.checked)}
+                  />
+                </div>
+                <div class="col-md-1 col-sm-6 col-xs-12">
+                  <label for="isProductAuction">Акция</label>
+                  <br/>
+                  <Checkbox
+                    id="isProductAuction"
+                    checkboxClass="icheckbox_square-blue"
+                    increaseArea="20%"
+                    checked={this.state.selected.isAuction}
+                    onChange={(e) => this.updateField('isAuction', !e.target.checked)}
+                  />
+                </div>
+                <div class="col-md-1 col-sm-6 col-xs-12">
+                  <label for="isProductBestseller">Бестселлер</label>
+                  <br/>
+                  <Checkbox
+                    id="isProductBestseller"
+                    checkboxClass="icheckbox_square-blue"
+                    increaseArea="20%"
+                    checked={this.state.selected.isBestseller}
+                    onChange={(e) => this.updateField('isBestseller', !e.target.checked)}
+                  />
+                </div>
+                <br/><br/><br/>
               </div>
               <div class="form-group">
                 <label for="productPrice">Цена *</label>
