@@ -73,6 +73,10 @@ export default class Categories extends React.Component {
     );
   }
 
+  _initTextEditor() {
+    $(this.refs.categoryDescription).trumbowyg(config.trumbowyg);
+  }
+
   componentDidMount() {
     dispatch('page:titles:change', {
       pageTitle: 'Управление категориями'
@@ -81,7 +85,7 @@ export default class Categories extends React.Component {
     // Get categories list
     this._loadCategoryTree();
 
-    // Get bootsrap category to edit
+    // Get bootstrap category to edit
     this.getBootstrapCategory();
   }
 
@@ -89,7 +93,10 @@ export default class Categories extends React.Component {
     bootstrap(
       (bootstrap) => {
         this.setState({ selected: bootstrap, mode: 'add' },
-          () => typeof onSuccess === 'function' && onSuccess(bootstrap)
+          () => {
+            typeof onSuccess === 'function' && onSuccess(bootstrap);
+            this._initTextEditor();
+          }
         );
       },
       (e) => {
@@ -149,9 +156,11 @@ export default class Categories extends React.Component {
 
   selectCategoryHandler(selected) {
     this.setState({
-      selected,
-      mode: 'edit'
-    });
+        selected,
+        mode: 'edit'
+      },
+      () => this._initTextEditor()
+    );
   }
 
   categoryTitleChange(e) {
@@ -226,6 +235,7 @@ export default class Categories extends React.Component {
 
     const data = Object.assign(
       { ...this.state.selected },
+      { description: this.refs.categoryDescription.innerHTML },
       { pictures: (this.state.selected.pictures || []).map(({ id }) => id) }
     );
 
@@ -407,13 +417,12 @@ export default class Categories extends React.Component {
               </div>
               <div class="form-group">
                 <label for="categoryDescription">Описание категории</label>
-                <textarea
-                  ref="categoryDescription"
+                <div
                   class="form-control"
+                  ref="categoryDescription"
                   id="categoryDescription"
-                  onChange={this.categoryDescriptionChange.bind(this)}
-                  value={this.state.selected.description || ''}
-                  placeholder="Введите описание категории"
+                  contentEditable="true"
+                  dangerouslySetInnerHTML={{__html: this.state.selected.description || ''}}
                 />
               </div>
               <div class="form-group">
