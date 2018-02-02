@@ -3,25 +3,25 @@ import Moment from 'moment';
 import { Checkbox } from 'react-icheck';
 import { dispatch } from '../../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../../core/helpers/Utils';
-import { reviews } from '../../../../actions/Review';
+import { comments } from '../../../../actions/Comment';
 
-export default class ProductReviewsDialog extends React.Component {
+export default class CommentsDialog extends React.Component {
 
   constructor(props) {
     super(props);
 
     this.state = {
-      reviews: [],
+      comments: [],
     };
 
     this.approvedList = [];
   }
 
   componentDidMount() {
-    reviews(
-      { productId: this.props.productId },
-      (reviews) => {
-        this.setState({ reviews });
+    comments(
+      { postId: this.props.postId },
+      (comments) => {
+        this.setState({ comments });
       },
       (e) => {
         dispatch('notification:throw', {
@@ -40,7 +40,7 @@ export default class ProductReviewsDialog extends React.Component {
         {
           <ul class="products-list product-list-in-box">
           {
-            this.state.reviews.map(({id, rate, userName, review, dateCreated, isApproved}) => {
+            this.state.comments.map(({id, userName, comment, dateCreated, isApproved}) => {
               if (isApproved) {
                 this.approvedList.push(id);
               }
@@ -54,15 +54,15 @@ export default class ProductReviewsDialog extends React.Component {
                       if (e.target.checked)
                         this.approvedList.indexOf(id) === -1 && this.approvedList.push(id);
                       else
-                        this.approvedList = this.approvedList.filter((reviewId) => reviewId !== id);
+                        this.approvedList = this.approvedList.filter((commentId) => commentId !== id);
                     }}
                     />
                   <div class="product-info" style={{marginLeft:36}}>
                     <a href="javascript:void(0)" class="product-title">{userName}
-                      <span class="product-description">{Moment(dateCreated * 1000).format('DD.MM.YYYY HH:mm')} (Оценка: {rate})</span>
+                      <span class="product-description">{Moment(dateCreated * 1000).format('DD.MM.YYYY HH:mm')}</span>
                       <br/>
                       <span class="product-description" style={{whiteSpace:'initial'}}>
-                        {review}
+                        {comment}
                       </span>
                     </a>
                   </div>
@@ -74,7 +74,7 @@ export default class ProductReviewsDialog extends React.Component {
         }
         </div>
         <div class="modal-footer">
-          <small class="pull-left text-green"><br/>Отмеченные отзывы будут отображены на сайте.</small>
+          <small class="pull-left text-green"><br/>Отмеченные комментарии будут отображены на сайте.</small>
           <button type="button" class="btn btn-default" onClick={() => dispatch('popup:close')}>Отмена</button>
           <button
             type="button"

@@ -8,6 +8,8 @@ import { list as tagsList, add as tagAdd } from '../../../actions/Tag';
 import DeletePictureDialog from './popups/DeletePictureDialog.jsx';
 import PicturesList from '../../widgets/PicturesList.jsx';
 import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
+import CommentsDialog from './popups/CommentsDialog.jsx';
+import { setApproved as setApprovedComments } from '../../../actions/Comment';
 
 export default class BlogPost extends React.Component {
 
@@ -18,6 +20,7 @@ export default class BlogPost extends React.Component {
       title: '',
       briefly: '',
       body: '',
+      video: '',
       tags: [],
       pictures: [],
       pictureId: '',
@@ -81,6 +84,38 @@ export default class BlogPost extends React.Component {
       <DeletePictureDialog
         onDeleteClick={this._doDeletePicture.bind(this)}
       />;
+
+    this.commentsDialog =
+      <CommentsDialog
+        postId={this.props.params.id}
+        onSelectClick={this.doCommentsUpdate.bind(this)}
+        style={{ width: 1200, maxHeight:'90%' }}
+      />;
+  }
+
+  doCommentsUpdate(comments) {
+    dispatch('popup:close');
+
+    setApprovedComments(
+      {
+        postId: this.props.params.id,
+        commentIds: comments
+      },
+      (r) => {
+        dispatch('notification:throw', {
+          type: 'success',
+          title: 'Успех',
+          message: 'Настройки сохранены'
+        });
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
   }
 
   addPostPictureHandler(post, picture) {
@@ -266,6 +301,15 @@ export default class BlogPost extends React.Component {
     );
   }
 
+  viewComments(e) {
+    e.preventDefault();
+
+    dispatch('popup:show', {
+      title: 'Комментарии',
+      body: this.commentsDialog
+    });
+  }
+
   render() {
     this.initDialogs();
 
@@ -327,6 +371,26 @@ export default class BlogPost extends React.Component {
                   deletePictureControll={true}
                   deletePictureCallback={this._deletePicture.bind(this)}
                 />
+              </div>
+              <div class="form-group">
+                <label for="postVideo">Обзор на YOUTUBE</label>
+                <input
+                  type="text"
+                  id="postVideo"
+                  class="form-control"
+                  value={this.state.selected.video}
+                  onChange={(e) => {
+                    this.state.selected.video = e.target.value;
+                    this.setState({ selected: this.state.selected });
+                  }}
+                  placeholder="Введите youtube-ссылку"
+                />
+              </div>
+              <div class="form-group">
+                <div class="text-bold">Коментарии</div>
+                <div class="btn btn-primary btn-sm" onClick={this.viewComments.bind(this)}>
+                  <i class="fa fa-pencil"></i>
+                </div>
               </div>
               <div class="form-group">
                 <label for="showOnHome">Показать на главной</label>
