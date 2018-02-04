@@ -1,5 +1,6 @@
 import React from 'react';
 import DeleteOrderDialog from './popups/DeleteOrderDialog.jsx';
+import Moment from 'moment';
 import PowerTable from '../../widgets/PowerTable.jsx';
 import { Link } from 'react-router';
 import { dispatch } from '../../../core/helpers/EventEmitter';
@@ -38,13 +39,27 @@ export default class Orders extends React.Component {
     return [
       { name: 'product', display: 'Товар', sort: true, renderer: (row) => {
         return row.products
-          .map(({ title, count }) => `${title} (${count} шт.)`)
-          .join(', ')
-          //.concat('…');
+          .map(({ title, count, id }, key) => (
+            <span key={id}>
+              <Link to={"product/" + id} target="_blank">{title}</Link> ({count} шт.)
+              {key < row.products.length - 1 && <span>, </span>}
+            </span>
+          ))
+      } },
+      { name: 'dateCreated', display: 'Добавлен', sort: true, renderer: ({ dateCreated }) => {
+        return Moment(dateCreated * 1000).format('DD.MM.YYYY HH:mm');
       } },
       { name: 'stateId', display: 'Состояние', sort: true, renderer: ({ stateId }) => {
         const state = (JSON.parse(Settings.get('productStates')) || []).find(({[stateId]:state}) => state);
         return Object.values(state || {})[0];
+      } },
+      { name: 'deliveryId', display: 'Доставка', sort: true, renderer: ({ deliveryId }) => {
+        const delivery = (JSON.parse(Settings.get('delivery')) || []).find(({id}) => id == deliveryId);
+        return (delivery || {}).title;
+      } },
+      { name: 'paymentId', display: 'Оплата', sort: true, renderer: ({ paymentId }) => {
+        const payment = (JSON.parse(Settings.get('payment')) || []).find(({id}) => id == paymentId);
+        return (payment || {}).title;
       } },
       { name: 'userName', display: 'Имя', sort: true },
       { name: 'address', display: 'Адрес', sort: true },

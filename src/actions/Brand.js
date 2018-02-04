@@ -18,11 +18,23 @@ export function remove(data, success, error) {
 };
 
 export function addPicture(data, success, error) {
-    request(`/brand/add-picture`, data, 'post', success, error);
+    request(`/brand/add-picture/${data.brandId}`, data, 'post', success, error);
 };
 
 export function deletePicture(data, success, error) {
-    request(`/brand/delete-picture`, data, 'post', success, error);
+    request(`/brand/delete-picture/${data.brandId}`, data, 'post', success, error);
+};
+
+export function bootstrap(success, error) {
+    request(`/brand/bootstrap`, {}, 'get', success, error);
+};
+
+export function addCover(data, success, error) {
+    request(`/brand/add-cover/${data.brandId}`, data, 'post', success, error);
+};
+
+export function deleteCover(data, success, error) {
+    request(`/brand/delete-cover/${data.brandId}`, data, 'post', success, error);
 };
 
 export function get({ id }, success, error) {

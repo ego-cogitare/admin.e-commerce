@@ -55,6 +55,7 @@ export default class RelativeProductsDialog extends React.Component {
     list(
       params,
       (products) => {
+        console.log(products);
         // Only not yet added products
         this.setState({
           products: products.filter(({ id }) => (this.props.selected || []).indexOf(id) === -1)

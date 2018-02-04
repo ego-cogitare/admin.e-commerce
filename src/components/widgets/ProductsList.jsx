@@ -94,8 +94,7 @@ export default class ProductsList extends React.Component {
       <div class={this.props.className}>
         {
           this.state.products.length > 0 ?
-            this.state.products.map(({ id, title, briefly, description, pictures, pictureId }) => {
-              const picture = pictures.find(({ id }) => id === pictureId) || pictures[0];
+            this.state.products.map(({ id, title, briefly, description, picture }) => {
 
               return (
                 <div key={id} class="related media">

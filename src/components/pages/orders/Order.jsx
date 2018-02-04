@@ -20,12 +20,20 @@ export default class Order extends React.Component {
       products: [],
 
       states: JSON.parse(Settings.get('productStates'))
-        .map(( setting ) => {
-          return {
+        .map((setting) => ({
             id: Object.keys(setting)[0],
             text: Object.values(setting)[0]
-          };
-        }),
+          })
+        )
+      ,
+
+      payments: JSON.parse(Settings.get('payment'))
+        .map(({id, title: text}) => ({id, text}))
+      ,
+
+      deliveries: JSON.parse(Settings.get('delivery'))
+        .map(({id, title: text}) => ({id, text}))
+      ,
 
       order: {}
     };
@@ -220,6 +228,34 @@ export default class Order extends React.Component {
                   onChange={(e) => this.updateField('phone', e.target.value)}
                   value={this.state.order.phone || ''}
                   placeholder="Введите телефон покупателя"
+                />
+              </div>
+              <div class="form-group">
+                <label for="productDelivery">Способ доставки *</label>
+                <Select2
+                  style={{ width: '100%' }}
+                  nestedOffset="0"
+                  multiple={false}
+                  placeholder="Способ доставки покупки"
+                  onChange={(deliveryId) => {
+                    this.updateField('deliveryId', deliveryId);
+                  }}
+                  data={this.state.deliveries}
+                  value={[ Number(this.state.order.deliveryId) ]}
+                />
+              </div>
+              <div class="form-group">
+                <label for="productPayment">Способ оплаты *</label>
+                <Select2
+                  style={{ width: '100%' }}
+                  nestedOffset="0"
+                  multiple={false}
+                  placeholder="Способ оплаты покупки"
+                  onChange={(paymentId) => {
+                    this.updateField('paymentId', paymentId);
+                  }}
+                  data={this.state.payments}
+                  value={[ Number(this.state.order.paymentId) ]}
                 />
               </div>
               <div class="form-group">

@@ -4,10 +4,12 @@ import PicturesList from '../../widgets/PicturesList.jsx';
 import DeletePictureDialog from './popups/DeletePictureDialog.jsx';
 import FileDragAndDrop from 'react-file-drag-and-drop';
 import FileUpload from 'react-fileupload';
-import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
+import UploadPictureDialog from '../fileManager/popup/UploadFile.jsx';
+import UploadCoverDialog from '../fileManager/popup/UploadFile.jsx';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
-import { get, add, update, remove, addPicture, deletePicture } from '../../../actions/Brand';
+import { get, add, update, remove, bootstrap, addPicture,
+  deletePicture, addCover, deleteCover } from '../../../actions/Brand';
 
 export default class Brands extends React.Component {
 
@@ -18,7 +20,9 @@ export default class Brands extends React.Component {
       id: null,
       title: '',
       pictureId: null,
-      pictures: []
+      pictures: [],
+      coverId: null,
+      covers: [],
     };
 
     this.state = {
@@ -37,9 +41,12 @@ export default class Brands extends React.Component {
       pageTitle: 'Редактирование брэнда'
     });
 
-    if (this.props.params.id) {
+    if (this.props.params.id)
+    {
       get({ id: this.props.params.id },
-        (r) => this.setState({ selected: r, mode: 'edit' }),
+        (brand) => {
+          this.setState({ selected: brand, mode: 'edit' });
+        },
         (e) => {
           dispatch('notification:throw', {
             type: 'danger',
@@ -49,17 +56,49 @@ export default class Brands extends React.Component {
         }
       );
     }
+    else
+    {
+      // this.initTextEditor();
+      this.getBootstrapBrand();
+    }
   }
 
   initDialogs() {
-    this.uploadFileDialog =
-      <UploadFileDialog
+    this.uploadPictureDialog = <UploadPictureDialog
         path={this.state.path}
         onUploadSuccess={(file) => this.addBrandPictureHandler(this.state.selected, file)}
         onUploadFail={(file) => console.log('Error', file)}
       />;
 
-    this.deletePictureDialog = <DeletePictureDialog onDeleteClick={this._doDeletePicture.bind(this)} />;
+    this.uploadCoverDialog = <UploadCoverDialog
+        path={this.state.path}
+        onUploadSuccess={(file) => this.addBrandCoverHandler(this.state.selected, file)}
+        onUploadFail={(file) => console.log('Error', file)}
+      />;
+
+    this.deletePictureDialog = <DeletePictureDialog
+      onDeleteClick={this._doDeletePicture.bind(this)}
+    />;
+
+    this.deleteCoverPictureDialog = <DeletePictureDialog
+      onDeleteClick={this._doDeleteCover.bind(this)}
+    />;
+  }
+
+  getBootstrapBrand() {
+    bootstrap(
+      (bootstrap) => this.setState({
+        selected: bootstrap,
+        mode: 'add'
+      }),
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
   }
 
   brandTitleChange(e) {
@@ -67,10 +106,17 @@ export default class Brands extends React.Component {
     this.setState({ selected: this.state.selected });
   }
 
-  _uploadFiles() {
+  _uploadPicture() {
     dispatch('popup:show', {
       title: 'Перетяните и бросьте файл для загрузки',
-      body: this.uploadFileDialog
+      body: this.uploadPictureDialog
+    });
+  }
+
+  _uploadCover() {
+    dispatch('popup:show', {
+      title: 'Перетяните и бросьте файл для загрузки',
+      body: this.uploadCoverDialog
     });
   }
 
@@ -80,6 +126,15 @@ export default class Brands extends React.Component {
     dispatch('popup:show', {
       title: 'Подтвердите действие',
       body: this.deletePictureDialog
+    });
+  }
+
+  _deleteCover(picture) {
+    this.coverPictureToDelete = picture;
+
+    dispatch('popup:show', {
+      title: 'Подтвердите действие',
+      body: this.deleteCoverPictureDialog
     });
   }
 
@@ -119,6 +174,42 @@ export default class Brands extends React.Component {
     );
   }
 
+  _doDeleteCover() {
+    dispatch('popup:close');
+
+    deleteCover(
+      Object.assign(this.coverPictureToDelete, { brandId: this.state.selected.id }),
+      (r) => {
+        const selected = this.state.selected;
+
+        // Delete brand picture from pictures list
+        selected.covers = selected.covers.filter(
+          ({ id }) => id !== this.coverPictureToDelete.id
+        );
+
+        // If brand active picture deleted
+        if (selected.coverId === this.coverPictureToDelete.id) {
+          selected.coverId = null;
+        }
+
+        this.setState({ selected });
+
+        dispatch('notification:throw', {
+          type: 'success',
+          title: 'Успех',
+          message: 'Изображение успешно удалено'
+        });
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
+  }
+
   _addBrand(onSuccess = ()=>null, onFail = ()=>null) {
     this.state.selected.title = this.refs.brandTitle.value;
 
@@ -137,31 +228,17 @@ export default class Brands extends React.Component {
     );
   }
 
-  addBrandHandler(e) {
-    e.preventDefault();
-
-    this._addBrand(
-      (brand) => {
-        dispatch('notification:throw', {
-          type: 'success',
-          title: 'Успех',
-          message: 'Брэнд успешно добавлен'
-        });
-      },
-      (e) => {
-        dispatch('notification:throw', {
-          type: 'danger',
-          title: 'Ошибка',
-          message: e.responseJSON.error
-        });
-      }
-    );
-  }
-
   updateBrandHandler(e) {
     e.preventDefault();
 
-    update({ ...this.state.selected },
+    const data = Object.assign(
+      { ...this.state.selected },
+      { pictures: this.state.selected.pictures.map(({id}) => id) },
+      { covers: this.state.selected.covers.map(({id}) => id) }
+    );
+
+    update(
+      data,
       (brand) => {
         dispatch('notification:throw', {
           type: 'success',
@@ -179,16 +256,48 @@ export default class Brands extends React.Component {
     );
   }
 
-  addBrandPictureHandler(brand, picture) {
-    addPicture({ brand, picture },
+  addBrandPictureHandler({ id: brandId }, picture) {
+    addPicture(
+      { brandId, pictureId: picture.id },
       (r) => {
-        this.setState({ selected: r, mode: 'edit' }, () => {
-          dispatch('notification:throw', {
-            type: 'success',
-            title: 'Успех',
-            message: 'Изображение брэнда добавлено'
-          });
+        this.state.selected.pictures.push(picture);
+        this.setState(
+          {
+            selected: this.state.selected,
+            mode: 'edit'
+          },
+          () => dispatch('notification:throw', {
+                  type: 'success',
+                  title: 'Успех',
+                  message: 'Превью брэнда добавлено'
+                })
+        );
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
         });
+      }
+    );
+  }
+
+  addBrandCoverHandler({ id: brandId }, picture) {
+    addCover(
+      { brandId, coverId: picture.id },
+      (r) => {
+        this.state.selected.covers.push(picture);
+        this.setState({
+            selected: this.state.selected,
+            mode: 'edit'
+          },
+          () => dispatch('notification:throw', {
+                  type: 'success',
+                  title: 'Успех',
+                  message: 'Постер брэнда добавлен'
+                })
+        );
       },
       (e) => {
         dispatch('notification:throw', {
@@ -205,6 +314,10 @@ export default class Brands extends React.Component {
     this.setState({ selected: this.state.selected });
   }
 
+  setBrandCoverHandler({ id }, e) {
+    this.state.selected.coverId = id;
+    this.setState({ selected: this.state.selected });
+  }
 
   resetBrandHandler() {
     this.setState({
@@ -237,7 +350,7 @@ export default class Brands extends React.Component {
                 />
               </div>
               <div class="form-group">
-                <label>Изображения брэнда</label>
+                <label>Превью брэнда (для главной страницы)</label>
                 <PicturesList
                   className="pictures-list"
                   pictureClassName="picture"
@@ -246,16 +359,31 @@ export default class Brands extends React.Component {
                   activePictureId={this.state.selected.pictureId}
                   onSelect={this.setBrandPictureHandler.bind(this)}
                   addPictureControll={true}
-                  addPictureCallback={this._uploadFiles.bind(this)}
+                  addPictureCallback={this._uploadPicture.bind(this)}
                   deletePictureControll={true}
                   deletePictureCallback={this._deletePicture.bind(this)}
+                />
+              </div>
+              <div class="form-group">
+                <label>Постер брэнда (страница брэнда)</label>
+                <PicturesList
+                  className="pictures-list"
+                  pictureClassName="picture"
+                  pictureActiveClassName="selected"
+                  pictures={this.state.selected.covers}
+                  activePictureId={this.state.selected.coverId}
+                  onSelect={this.setBrandCoverHandler.bind(this)}
+                  addPictureControll={true}
+                  addPictureCallback={this._uploadCover.bind(this)}
+                  deletePictureControll={true}
+                  deletePictureCallback={this._deleteCover.bind(this)}
                 />
               </div>
             </div>
             <div class="box-footer">
             {
               (this.state.mode === 'add') ?
-                <button type="submit" class="btn btn-primary fa fa-check" onClick={this.addBrandHandler.bind(this)}> Добавить</button> :
+                <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateBrandHandler.bind(this)}> Добавить</button> :
                 <div class="btn-group">
                   <button type="submit" class="btn btn-primary fa fa-check" onClick={this.updateBrandHandler.bind(this)}> Сохранить</button>
                   <button type="submit" class="btn btn-default fa fa-file-o" onClick={this.resetBrandHandler.bind(this)}> Новый</button>
