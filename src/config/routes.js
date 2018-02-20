@@ -49,6 +49,14 @@ const routes = {
       component: require('../components/pages/orders/Order.jsx').default
     },
     {
+      path: 'callbacks',
+      component: require('../components/pages/callbacks/Callbacks.jsx').default
+    },
+    {
+      path: 'callback/:id',
+      component: require('../components/pages/callbacks/Callback.jsx').default
+    },
+    {
       path: 'blog-pages',
       component: require('../components/pages/blog/BlogPages.jsx').default
     },

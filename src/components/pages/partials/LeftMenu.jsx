@@ -87,6 +87,11 @@ export default class LeftMenu extends React.Component {
                   </Link>
                 </li>
                 <li>
+                  <Link to="/callbacks" activeClassName="active">
+                    <i class="fa fa-circle-o"></i> <span>Автоперезвон</span>
+                  </Link>
+                </li>
+                <li>
                   <Link to="/order" activeClassName="active">
                     <i class="fa fa-circle-o"></i> <span>Создать</span>
                   </Link>
