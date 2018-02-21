@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { Checkbox } from 'react-icheck';
 import Settings from '../../../core/helpers/Settings';
 import DeletePictureDialog from './popups/DeletePictureDialog.jsx';
+import DeleteAwardDialog from './popups/DeleteAwardDialog.jsx';
 import PicturesList from '../../widgets/PicturesList.jsx';
 import ProductsList from '../../widgets/ProductsList.jsx';
 import Select2 from '../../widgets/Select2.jsx';
@@ -11,12 +12,13 @@ import Discount from '../../widgets/Discount.jsx';
 import FileDragAndDrop from 'react-file-drag-and-drop';
 import FileUpload from 'react-fileupload';
 import UploadFileDialog from '../fileManager/popup/UploadFile.jsx';
+import UploadAwardDialog from '../fileManager/popup/UploadFile.jsx';
 import RelativeProductsDialog from './popups/RelativeProductsDialog.jsx';
 import ProductPropertiesDialog from './popups/ProductPropertiesDialog.jsx';
 import ProductReviewsDialog from './popups/ProductReviewsDialog.jsx';
 import { dispatch } from '../../../core/helpers/EventEmitter';
 import { buildUrl } from '../../../core/helpers/Utils';
-import { bootstrap, get, update, remove, addPicture, deletePicture } from '../../../actions/Products';
+import { bootstrap, get, update, remove, addPicture, deletePicture, addAward, deleteAward } from '../../../actions/Products';
 import { tree as categoryTree } from '../../../actions/Category';
 import { list as brandList } from '../../../actions/Brand';
 import { setApproved as setApprovedReviews } from '../../../actions/Review';
@@ -36,6 +38,7 @@ export default class Product extends React.Component {
       video: '',
       sku: '',
       pictures: [],
+      awards: [],
       pictureId: '',
       relatedProducts: [],
       properties: [],
@@ -201,6 +204,19 @@ export default class Product extends React.Component {
         }}
       />;
 
+    this.uploadAwardDialog =
+      <UploadAwardDialog
+        path={this.state.path}
+        onUploadSuccess={(file) => this.addProductAwardHandler(this.state.selected, file)}
+        onUploadFail={(file) => {
+          dispatch('notification:throw', {
+            type: 'danger',
+            title: 'Ошибка',
+            message: JSON.stringify(file)
+          });
+        }}
+      />;
+
     this.relativeProductsDialog =
       <RelativeProductsDialog
         manageControll={['checkbox']}
@@ -212,6 +228,11 @@ export default class Product extends React.Component {
     this.deletePictureDialog =
       <DeletePictureDialog
         onDeleteClick={this._doDeletePicture.bind(this)}
+      />;
+
+    this.deleteAwardDialog =
+      <DeleteAwardDialog
+        onDeleteClick={this._doDeleteAward.bind(this)}
       />;
 
     this.productPropertiesDialog =
@@ -278,12 +299,28 @@ export default class Product extends React.Component {
     });
   }
 
+  _uploadAwards() {
+    dispatch('popup:show', {
+      title: 'Перетяните и бросьте файл для загрузки',
+      body: this.uploadAwardDialog
+    });
+  }
+
   _deletePicture(picture) {
     this.pictureToDelete = picture;
 
     dispatch('popup:show', {
       title: 'Подтвердите действие',
       body: this.deletePictureDialog
+    });
+  }
+
+  _deleteAward(picture) {
+    this.awardToDelete = picture;
+
+    dispatch('popup:show', {
+      title: 'Подтвердите действие',
+      body: this.deleteAwardDialog
     });
   }
 
@@ -353,6 +390,37 @@ export default class Product extends React.Component {
     );
   }
 
+  _doDeleteAward() {
+    dispatch('popup:close');
+
+    deleteAward(
+      Object.assign(this.awardToDelete, { productId: this.state.selected.id }),
+      (r) => {
+        const selected = this.state.selected;
+
+        // Delete brand picture from pictures list
+        selected.awards = selected.awards.filter(
+          ({ id }) => id !== this.awardToDelete.id
+        );
+
+        this.setState({ selected });
+
+        dispatch('notification:throw', {
+          type: 'success',
+          title: 'Успех',
+          message: 'Изображение успешно удалено'
+        });
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
+  }
+
   updateProductHandler(e) {
     e.preventDefault();
 
@@ -360,6 +428,7 @@ export default class Product extends React.Component {
 
     Object.assign(product, {
       pictures: product.pictures.map(({ id }) => id),
+      awards: product.awards.map(({ id }) => id),
       relatedProducts: product.relatedProducts.map(({ id }) => id),
       description: this.refs.productDescription.innerHTML
     });
@@ -393,6 +462,23 @@ export default class Product extends React.Component {
       (r) => {
         const selected = this.state.selected;
         selected.pictures.push(picture);
+        this.setState({ selected });
+      },
+      (e) => {
+        dispatch('notification:throw', {
+          type: 'danger',
+          title: 'Ошибка',
+          message: e.responseJSON.error
+        });
+      }
+    );
+  }
+
+  addProductAwardHandler(product, picture) {
+    addAward({ product, picture },
+      (r) => {
+        const selected = this.state.selected;
+        selected.awards.push(picture);
         this.setState({ selected });
       },
       (e) => {
@@ -516,13 +602,28 @@ export default class Product extends React.Component {
                   className="pictures-list"
                   pictureClassName="picture"
                   pictureActiveClassName="selected"
-                  pictures={this.state.selected.pictures}
+                  pictures={this.state.selected.pictures || []}
                   activePictureId={this.state.selected.pictureId}
                   onSelect={this.setProductPictureHandler.bind(this)}
                   addPictureControll={true}
                   addPictureCallback={this._uploadFiles.bind(this)}
                   deletePictureControll={true}
                   deletePictureCallback={this._deletePicture.bind(this)}
+                />
+              </div>
+              <div class="form-group">
+                <label>Обозначения</label>
+                <PicturesList
+                  className="pictures-list"
+                  pictureClassName="picture"
+                  pictureActiveClassName="selected"
+                  pictures={this.state.selected.awards || []}
+                  activePictureId=""
+                  onSelect={()=>false}
+                  addPictureControll={true}
+                  addPictureCallback={this._uploadAwards.bind(this)}
+                  deletePictureControll={true}
+                  deletePictureCallback={this._deleteAward.bind(this)}
                 />
               </div>
               <div class="form-group">

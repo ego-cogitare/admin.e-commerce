@@ -99,15 +99,15 @@ export default class ProductsList extends React.Component {
               return (
                 <div key={id} class="related media">
                   <div class="media-left">
-                    <img src={buildUrl(picture)} alt={picture.name} />
+                    <img src={buildUrl(picture)} alt={(picture || {}).name} />
                   </div>
                   <div class="media-body">
                     <div class="clearfix">
                       {this._getControll(id)}
                       <h4 style={{ marginTop:0 }}>
-                        <Link target="_blank" to={`product/${id}`}>{title}</Link>
+                        <Link target="_blank" to={`product/${id}`}>{title || ''}</Link>
                       </h4>
-                      <p>{briefly}</p>
+                      <p>{briefly || ''}</p>
                     </div>
                   </div>
                 </div>

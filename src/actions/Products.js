@@ -29,6 +29,14 @@ export function deletePicture(data, success, error) {
     request(`/product/delete-picture`, data, 'post', success, error);
 };
 
+export function addAward({ product, picture }, success, error) {
+    request(`/product/add-award/${product.id}`, { picture }, 'post', success, error);
+};
+
+export function deleteAward(data, success, error) {
+    request(`/product/delete-award`, data, 'post', success, error);
+};
+
 export function properties(params, success, error) {
     request(`/product/properties`, params, 'get', success, error);
 };
