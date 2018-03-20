@@ -5,7 +5,7 @@ import PowerTable from '../../widgets/PowerTable.jsx';
 import DeleteProductDialog from './popups/DeleteProductDialog.jsx';
 import { buildUrl } from '../../../core/helpers/Utils';
 import { dispatch } from '../../../core/helpers/EventEmitter';
-import { list } from '../../../actions/Products';
+import { list, remove } from '../../../actions/Products';
 import { tree as categoryTree } from '../../../actions/Category';
 import { list as brandList } from '../../../actions/Brand';
 
@@ -108,13 +108,12 @@ export default class Products extends React.Component {
 
   get columns() {
     return [
-      { name: 'picture', width: 5, display: 'Фото', sort: false, renderer: (row) => {
+      { name: 'picture', width: 5, display: 'Фото', sort: false, style: { verticalAlign: 'middle', textAlign: 'center' }, renderer: (row) => {
         if (!row.pictureId) { return null; }
         return (
           <img
-            width="30"
-            height="30"
-            src={buildUrl(row.pictures.filter(({ id }) => id === row.pictureId)[0])}
+            width="80"
+            src={buildUrl(row.picture)}
             style={{ objectFit: 'cover' }}
           />
         );
